@@ -1,0 +1,75 @@
+
+CREATE TABLE if not exists users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    password VARCHAR(100) NOT NULL COMMENT '密码',
+    salt  VARCHAR(100) NOT NULL COMMENT '盐值加密',
+    email VARCHAR(100) NOT NULL UNIQUE COMMENT '邮箱',
+    self_intro VARCHAR(100) COMMENT '自我介绍'
+    avatar VARCHAR(255) COMMENT '头像URL',
+    role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER' COMMENT '角色，USER为普通用户，ADMIN为管理员',
+    isDeleted TINYINT(1) NOT NULL DEFAULT 0 COMMENT '删除标志，0为未删除，1为已删除',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='用户表';
+
+CREATE TABLE if not exists sections (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '板块ID',
+    name VARCHAR(50) NOT NULL UNIQUE COMMENT '板块名称',
+    description TEXT COMMENT '板块描述',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='板块表';
+
+CREATE TABLE if not exists topics (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '话题ID',
+    section_id BIGINT NOT NULL COMMENT '所属板块ID',
+    user_id BIGINT NOT NULL COMMENT '发布用户ID',
+    content TEXT NOT NULL COMMENT '话题内容',
+    image VARCHAR(255) COMMENT '图片URL',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (section_id) REFERENCES sections(id),
+    FOREIGN KEY (user_id) REFERENCES users(id) 
+) COMMENT='话题表';
+
+CREATE TABLE if not exists followers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '关注ID',
+    follower_id BIGINT NOT NULL COMMENT '关注者ID',
+    followee_id BIGINT NOT NULL COMMENT '被关注者ID',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    FOREIGN KEY (follower_id) REFERENCES users(id) ,
+    FOREIGN KEY (followee_id) REFERENCES users(id) ,
+    UNIQUE KEY (follower_id, followee_id) COMMENT '唯一键，防止重复关注'
+) COMMENT='关注表';
+
+CREATE TABLE if not exists announcements (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '通告ID',
+    title VARCHAR(255) NOT NULL COMMENT '通告标题',
+    content TEXT NOT NULL COMMENT '通告内容',
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0 COMMENT '删除标志，0为未删除，1为已删除',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='通告表';
+
+CREATE TABLE if not exists comments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '评论ID',
+    topic_id BIGINT NOT NULL COMMENT '所属话题ID',
+    user_id BIGINT NOT NULL COMMENT '评论用户ID',
+    content TEXT NOT NULL COMMENT '评论内容',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (topic_id) REFERENCES topics(id) COMMENT '外键，引用话题ID',
+    FOREIGN KEY (user_id) REFERENCES users(id) COMMENT '外键，引用用户ID'
+) COMMENT='评论表';
+
+CREATE TABLE if not exists replies (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '回复ID',
+    comment_id BIGINT NOT NULL COMMENT '所属评论ID',
+    user_id BIGINT NOT NULL COMMENT '回复用户ID',
+    content TEXT NOT NULL COMMENT '回复内容',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (comment_id) REFERENCES comments(id) COMMENT '外键，引用评论ID',
+    FOREIGN KEY (user_id) REFERENCES users(id) COMMENT '外键，引用用户ID'
+) COMMENT='回复表';
