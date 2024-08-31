@@ -93,8 +93,8 @@
   import { ElMessage, ElMessageBox } from 'element-plus';
   import deleteIcon from '@/assets/delete.png';
   import deleteIconHover from '@/assets/delete-a.png';
-// 为每个话题维护悬停状态
-const hoverIndex = ref<number | null>(null);
+  // 为每个话题维护悬停状态
+  const hoverIndex = ref<number | null>(null);
   interface User {
     id: number;
     avatar: string;

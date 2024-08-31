@@ -1,6 +1,6 @@
 <template>
   <div class="chat-view">
-    <el-card class="chat-header">
+    <el-card class="chat-header" body-style="background-color:#ebf5f4">
       <div class="chat-header-content">
         <el-avatar :src="otherUser?.avatar" class="avatar" />
         <div class="user-info">
@@ -27,9 +27,9 @@
       <el-input
         v-model="message"
         type="textarea"
-        :rows="4"
+        :rows="10"
         placeholder="输入消息..."
-        maxlength="1000"
+        maxlength="500"
         show-word-limit
       />
       <el-button @click="sendMessage" class="send-button">发送</el-button>
@@ -181,16 +181,15 @@ function scrollToBottom() {
 </script>
 
 
-
 <style scoped>
 .chat-view {
   display: flex;
+  border-radius: 10px;
   flex-direction: column;
-  height: 100%;
-}
-
-.chat-header {
+  margin-top: 5px;
   margin-bottom: 10px;
+  background-color: #ebf5f4;
+  height: 95vh;
 }
 
 .chat-header-content {
@@ -199,14 +198,12 @@ function scrollToBottom() {
 }
 
 .user-info {
-  flex: 1;
-  margin-left: 10px;
+  margin-left: 20px;
 }
 
 .message-box {
-  flex: 1;
-  background-color: #fff;
-  padding: 10px;
+  flex: 3;
+  background-color: #f4f5f7; /* 修改聊天背景颜色 */
   border-bottom: 1px solid #ddd;
   overflow-y: auto;
 }
@@ -228,20 +225,22 @@ function scrollToBottom() {
 }
 
 .message-content {
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
+  background-color: #fff; /* 修改聊天气泡颜色为白色 */
+  color: #333;
   padding: 10px;
   border-radius: 10px;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .message-time {
   margin-top: 5px;
   font-size: 0.8em;
-  color: #ccc;
+  color: #999;
 }
 
 .sent {
   flex-direction: row-reverse;
+  padding-right: 20px;
   align-self: flex-end;
 }
 
@@ -252,13 +251,16 @@ function scrollToBottom() {
 
 .received {
   align-self: flex-start;
+  padding-left: 20px
 }
 
 .input-box {
+  flex: 2;
   display: flex;
   align-items: flex-end;
   background-color: #f1f1f1;
   padding: 10px;
+  width: 100%;
   border-top: 1px solid #ddd;
 }
 
@@ -268,7 +270,7 @@ function scrollToBottom() {
 }
 
 .send-button {
-  background-color: #007bff;
+  background-color: #00bbff;
   color: white;
   border: none;
   padding: 10px 15px;

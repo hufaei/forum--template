@@ -77,7 +77,11 @@ provide('isConnected', isConnected);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  background: linear-gradient(to right, #98e3ed, #b2f2f2, #fefefe);
   color: #2c3e50;
+  /* 设置背景图片 */
+  background-image: url(https://s1.hdslb.com/bfs/static/blive/blfe-message-web/static/img/light_bg.8e46311e.png);
+  background-size: cover; /* 背景图像覆盖整个容器 */
+  background-repeat: no-repeat; /* 背景不重复 */
+  background-position: center center; /* 背景居中显示 */
 }
 </style>

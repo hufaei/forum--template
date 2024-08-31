@@ -4,10 +4,8 @@
     class="el-menu-demo"
     mode="horizontal"
     @select="handleSelect"
-    background-color="#ff784b"
-    text-color="#fff"
     :ellipsis="false"
-    active-text-color="#ffd04b"
+    active-text-color="#000000"
   >
     <el-menu-item index="home">
       <el-icon><img src="@/assets/main.png" alt="首页" class="nav-icon"></el-icon>
@@ -174,6 +172,8 @@ const handleChatClick = () => {
 .el-menu-demo {
   display: flex;
   align-items: center;
+  background: white;
+  color: black;
 }
 
 .flex-grow {
@@ -205,7 +205,7 @@ const handleChatClick = () => {
 
 .nickname {
   margin-left: 8px;
-  color: #fff;
+  color: #1d1d1d;
 }
 
 .message-icon {

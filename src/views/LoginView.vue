@@ -1,5 +1,5 @@
 <template>
-  <mi-login :action="handleSubmit" :background=bg1 :captcha="false" />
+  <mi-login :action="handleSubmit" :background=bg1 :captcha="false" :title="title"/>
   <!-- 显示错误信息 -->
   <el-alert v-if="errorMessage" :title="errorMessage" type="error" show-icon />
 </template>
@@ -10,6 +10,7 @@
   import { loginUser } from '@/requestMethod/useUser';
   import bg1 from '@/assets/background.png'
 
+  const title="LISchool";
   const router = useRouter();
 
   const errorMessage = ref<string | null>(null);

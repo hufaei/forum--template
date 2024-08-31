@@ -13,7 +13,7 @@
       <span>{{ topic.createdAt }}</span>
     </div>
     <el-divider></el-divider>
-    <div v-if="totalReplies > 0" class="total-replies">共{{ totalReplies }}条回复</div>
+    <!-- <div v-if="totalReplies > 0" class="total-replies">共{{ totalReplies }}条回复</div> -->
     <div
       v-infinite-scroll="loadMoreComments"
       infinite-scroll-disabled="false"
@@ -21,28 +21,36 @@
       class="comments"
     >
       <!-- 评论列表 -->
-    <el-card v-for="comment in comments" :key="comment.id" class="comment-card">
-      <div class="comment-content">{{ comment.nickName }}: {{ comment.content }}</div>
-      <div class="comment-footer">
-        <el-divider />
-        <span @click="toggleReplies(comment.id)" class="replies-toggle">
-          共{{ replyCounts[comment.id] || 0 }}条回复
-          <el-icon><arrow-down /></el-icon>
-        </span>
-        <div v-if="showRepliesMap[comment.id]" class="replies-container">
-          <el-card v-for="reply in repliesMap[comment.id]" :key="reply.id" class="reply-card">
-            <div>
-              <router-link :to="`/test1/${reply.userId}`">{{ reply.nickName }}</router-link> 回复: {{ reply.content }}
+      <el-card v-for="comment in comments" :key="comment.id" class="comment-card">
+        <div class="comment-content">{{ comment.nickName }}: {{ comment.content }}</div>
+        <div class="comment-footer">
+          <el-divider />
+          <span v-if="replyCounts[comment.id] > 0" @click="toggleReplies(comment.id)" class="replies-toggle">
+            共{{ replyCounts[comment.id] }}条回复
+            <el-icon><arrow-down /></el-icon>
+          </span>
+          <span v-else @click="toggleReplies(comment.id)" class="click-reply">暂无回复，点击回复此话题</span>
+          <div v-if="showRepliesMap[comment.id]" class="replies-container">
+            <el-card v-for="reply in repliesMap[comment.id]" :key="reply.id" class="reply-card">
+              <div>
+                <router-link :to="`/profile/${reply.userId}`">{{ reply.nickName }}</router-link> 回复: {{ reply.content }}
+              </div>
+              <div class="reply-time">{{ formatReplyTime(reply.createdAt) }}</div>
+            </el-card>
+            <div class="reply-input">
+              <input
+                v-model="newReplyContent"
+                :placeholder=replyPlaceholder
+                type="textarea"
+                class="custom-input"
+                @keyup.enter="submitReply(comment.id)"
+                clearable maxlength=100 show-word-limit
+              />
+              <img @click="submitReply(comment.id)" class="send-icon" src="@/assets/send.png" alt="发送">
             </div>
-            <div class="reply-time">{{ formatReplyTime(reply.createdAt) }}</div>
-          </el-card>
-          <div class="reply-input">
-            <el-input v-model="newReplyContent" :placeholder="replyPlaceholder" />
-            <el-button @click="submitReply(comment.id)">提交回复</el-button>
           </div>
         </div>
-      </div>
-    </el-card>
+      </el-card>
       <el-empty v-if="!comments.length && !loading.valueOf" description="暂无评论" />
     </div>
     <div class="comment-input">
@@ -56,6 +64,7 @@
     </div>
   </div>
 </template>
+
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -69,7 +78,7 @@ const topic = JSON.parse(route.query.topic as string);
 
 const comments = ref<Comment[]>([]);
 const newComment = ref<string>('');
-const newReplyContent = ref<string>(''); // 新增：用于回复的内容
+const newReplyContent = ref<string>(''); // 用于回复的内容
 const loading = ref<boolean>(false);
 let commentOffset = 0;
 const limit = 8;
@@ -80,7 +89,7 @@ const replyCounts = reactive<Record<number, number>>({});
 const totalReplies = ref<number>(0);
 const likeIcon = ref<string>("/src/assets/point-re.png");
 
-const replyTo = ref<number | null>(null); // 新增：当前要回复的评论 ID
+const replyTo = ref<number | null>(null); // 当前要回复的评论 ID
 const replyPlaceholder = computed(() => replyTo.value ? `回复 ${comments.value.find(c => c.id === replyTo.value)?.nickName}` : '输入回复...');
 
 const loadComments = async () => {
@@ -216,6 +225,7 @@ onMounted(() => {
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid #ddd; /* 添加分割线 */
+  border-radius: 10px;
 }
 .comment-footer {
   display: flex;
@@ -235,6 +245,17 @@ onMounted(() => {
 .replies-toggle:hover {
   color: black;
 }
+.click-reply {
+  color: gray;
+  cursor: pointer;
+  text-align: center; /* 居中显示 */
+  transition: color 0.3s;
+}
+
+.click-reply:hover {
+  color: black;
+}
+
 .reply-card {
   margin-top: 10px;
   padding: 5px;
@@ -248,5 +269,36 @@ onMounted(() => {
 .total-replies {
   text-align: center; /* 总回复数居中显示 */
   margin: 10px 0; /* 添加一些上下间距 */
+}
+
+.reply-input {
+  display: flex;
+  align-items: center; /* 输入框和发送图标垂直居中 */
+}
+
+.custom-input {
+  background-color: #ffffff;
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  border: 2px solid rgb(152, 152, 152);
+  border-radius: 5px;
+}
+
+.custom-input:focus {
+  color: #effffb;
+  background-color: #effffb;
+  outline-color: rgb(65, 65, 65);
+  box-shadow: -3px -3px 15px rgb(65, 65, 65);
+  transition: .1s;
+  transition-property: box-shadow;
+}
+
+.send-icon {
+  margin-left: -35px; /* 让图标覆盖输入框内 */
+  cursor: pointer;
+  color: white;
+  width: 24px;
+  height: 24px;
 }
 </style>

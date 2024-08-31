@@ -1,18 +1,35 @@
 <template>
   <div class="chat-list">
     <el-card
-      v-for="(conversation, key) in conversations" :key="key"
+      v-for="(conversation, key) in conversations"
+      :key="key"
       class="user-card"
-      @click="openChat(conversation.userId)"
+      @mouseenter="hoveredCard = key"
+      @mouseleave="hoveredCard = null"
+      @click="openChat(conversation.userId || conversation.groupId)"
     >
       <div class="user-card-content">
         <div class="user-info">
           <div class="avatar-and-nickname">
-            <el-avatar :src="conversation.avatar" :size="50" />
-            <div class="nickname">{{ conversation.nickname }}</div>
+            <el-avatar :src="conversation.data?.avatar || 'default-avatar-url'" :size="50" />
+            <div class="nickname">{{ conversation.data?.nickname || '未知用户' }}</div>
           </div>
-          <div class="last-message">{{ conversation.lastMessage || '暂无私聊信息' }}</div>
+          <div class="last-message">{{ conversation.lastMessage?.payload?.text || '暂无消息' }}</div>
           <div v-if="conversation.unread && conversation.unread > 0" class="unread-count">{{ conversation.unread }}</div>
+          
+          <!-- 删除按钮容器 -->
+          <div 
+            class="delete-icon-container" 
+            @click.stop="deleteConversation(conversation)"
+          >
+          <img 
+          v-if="hoveredCard === key" 
+          class="delete-icon" 
+          src="@/assets/con-delete.png" 
+          @click.stop="deleteConversation(conversation)" 
+          alt="delete icon"
+        />
+          </div>
         </div>
       </div>
     </el-card>
@@ -23,42 +40,30 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElCard, ElAvatar, ElEmpty } from 'element-plus';
+import { ElCard, ElAvatar, ElEmpty, ElImage } from 'element-plus';
+
 
 import 'element-plus/theme-chalk/el-card.css';
 import 'element-plus/theme-chalk/el-avatar.css';
 import 'element-plus/theme-chalk/el-empty.css';
+import 'element-plus/theme-chalk/el-image.css';
 
 const router = useRouter();
 const goEasy = inject('goEasy') as any;
-
-const conversations = ref<Array<{
-  userId: string;
-  nickname: string;
-  avatar: string;
-  lastMessage?: string;
-  unread?: number;
-}>>([]);
+const deleicon = "@/assets/con-delete.png";
+const conversations = ref<Array<any>>([]); 
+const hoveredCard = ref<number | null>(null); 
 
 // 监听会话列表更新事件
 async function onConversationsUpdated(result: any) {
-  if (result) {
-    conversations.value = result.content.conversations.map((conv: any) => ({
-      userId: conv.userId || conv.groupId, // Use groupId for group conversations if available
-      nickname: conv.data?.nickname || '未知用户',
-      avatar: conv.data?.avatar || 'default-avatar-url',
-      lastMessage: conv.lastMessage?.payload?.text || '暂无消息',
-      unread: conv.unread || 0,
-    }));
-    console.log(conversations)
-    
+  if (result && result.content && Array.isArray(result.content.conversations)) {
+    conversations.value = result.content.conversations; // 直接存储返回的 conversation 对象
   } else {
     console.error('Result content is undefined or not an array:', result);
   }
 }
 
 onMounted(() => {
-  console.log("确实进入了")
   loadConversations();
   if (goEasy) {
     goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
@@ -70,7 +75,6 @@ async function loadConversations() {
   try {
     await goEasy.im.latestConversations({
       onSuccess: (result: any) => {
-        console.log(result)
         onConversationsUpdated(result);
       },
       onFailed: (error: any) => {
@@ -94,9 +98,7 @@ async function markConversationAsRead(userId: string) {
       id: userId,
       type: goEasy.IM_SCENE.PRIVATE,
       onSuccess: () => {
-        console.log('Marked conversation as read successfully');
-        // 更新本地会话列表
-        const index = conversations.value.findIndex(conv => conv.userId === userId);
+        const index = conversations.value.findIndex(conv => (conv.userId || conv.groupId) === userId);
         if (index !== -1) {
           conversations.value[index].unread = 0;
         }
@@ -109,13 +111,32 @@ async function markConversationAsRead(userId: string) {
     console.error('Error marking conversation as read:', error);
   }
 }
+
+// 删除会话
+async function deleteConversation(conversation: any) {
+  try {
+    await goEasy.im.removeConversation({
+      conversation: conversation, // 直接传递 conversation 对象
+      onSuccess: () => {
+        conversations.value = conversations.value.filter(conv => conv !== conversation);
+        console.log('Conversation deleted successfully');
+      },
+      onFailed: (error: any) => {
+        console.log('Failed to delete conversation:', error);
+      }
+    });
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+  }
+}
 </script>
 
 <style scoped>
 .chat-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  margin-top: 10px;
+  margin-inline: 10px;
 }
 
 .user-card {
@@ -126,29 +147,30 @@ async function markConversationAsRead(userId: string) {
   transition: background-color 0.3s, border 0.3s;
   position: relative;
   padding: 10px;
-  border-radius: 4px;
+  margin-bottom: 10px;
   border: 1px solid #e0e0e0;
 }
 
 .user-card:hover {
   background-color: #f0f4f8;
-  border: 1px solid #000; /* 黑色实线边框 */
+  border: 1px solid #d2fffa;
 }
 
 .user-card-content {
   display: flex;
   flex-direction: row;
-  width: 330%;
+  width: 300%;
   align-items: center;
+  position: relative;
 }
 
 .user-info {
   margin-left: 10px;
-  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content:space-between;
-  align-items: center
+  justify-content: space-between;
+  align-items: center;
 }
 
 .avatar-and-nickname {
@@ -170,14 +192,12 @@ async function markConversationAsRead(userId: string) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 40%; /* 设定最大宽度以便消息内容超出时显示省略号 */
+  max-width: 40%;
 }
 
 .unread-count {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background-color: red;
+  margin-left: 15px;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -186,5 +206,30 @@ async function markConversationAsRead(userId: string) {
   align-items: center;
   justify-content: center;
   font-size: 12px;
+}
+
+/* 删除按钮容器 */
+.delete-icon-container {
+  position: relative;
+  right: 0;
+  height: 100%; /* 占据卡片的整个高度 */
+  width: 35px; /* 比图片略大 */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.8s, opacity 0.3s;
+  opacity: 0;
+  transform: translateX(20px); /* 初始位置 */
+}
+
+.user-card:hover .delete-icon-container {
+  transform: translateX(0); /* 平滑进入 */
+  opacity: 1;
+}
+
+.delete-icon {
+  width: 25px;
+  height: 25px;
 }
 </style>

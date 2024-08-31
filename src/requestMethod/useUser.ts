@@ -112,4 +112,43 @@ const logoutUser = async () => {
   }
 };
 
-export { getUserVo, updateUser, loginUser, logoutUser, errorMessage };
+interface RegisterData {
+  username: string;
+  password: string;
+  email: string;
+  confirm: string;
+}
+
+// 注册方法
+const register = async (data: RegisterData) => {
+  try {
+    const response: ResponseData = await $request.post(
+      'http://localhost:8080/users/add',
+      {
+        nickname: data.username,
+        password: data.password,
+        email: data.email, // 作为账号
+        confirm: data.confirm,
+        username: data.email
+      },
+      rconfig
+    );
+
+    if (response.ret.code === 200) {
+      ElMessage.success('注册成功');
+      return true;
+    } else {
+      errorMessage.value = response.ret.message;
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    console.error('注册失败:', error);
+    errorMessage.value = '注册失败，请重试。';
+    ElMessage.error('注册失败，请重试。');
+    return false;
+  }
+};
+
+
+export { getUserVo, updateUser, loginUser, logoutUser,register, errorMessage };

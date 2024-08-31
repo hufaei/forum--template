@@ -1,58 +1,46 @@
 <template>
   <div id="chat-page">
-    <el-container style="height: 100vh;">
-      <el-aside width="200px" class="sidebar">
-        <el-tabs
-          tab-position="left"
-          v-model="activeTab"
-          @tab-click="handleTabClick"
-        >
-          <el-tab-pane label="我的私聊" name="privateChat">
-            <!-- 我的私聊内容 -->
-          </el-tab-pane>
-          <el-tab-pane label="我的关注" name="following">
-            <!-- 我的关注内容 -->
-          </el-tab-pane>
-          <el-tab-pane label="收到的赞" name="receivedLikes">
-            <!-- 收到的赞内容 -->
-          </el-tab-pane>
-        </el-tabs>
-      </el-aside>
-      <el-main class="main-content">
-        <el-alert
-          v-if="!isConnected"
-          title="未连接到网络"
-          type="warning"
-          show-icon
-          class="alert-box"
-        />
-        <router-view v-if="isConnected" />
-        <el-loading v-if="!isConnected" fullscreen />
-      </el-main>
+    <el-container style="height: 98vh;padding-left: 10%;padding-right: 10% ">
+      <el-tabs
+        tab-position="left"
+        v-model="activeTab"
+        class="etab"
+        stretch
+        @tab-click="handleTabClick"
+      >
+        <el-tab-pane label="我的私聊" name="privateChat">
+          <router-view v-if="activeTab === 'privateChat' && isConnected" />
+        </el-tab-pane>
+
+        <el-tab-pane label="我的关注" name="following">
+          <router-view v-if="activeTab === 'following' && isConnected" />
+        </el-tab-pane>
+        
+        <el-tab-pane label="收到的赞" name="receivedLikes">
+          <router-view v-if="activeTab === 'receivedLikes' && isConnected" />
+        </el-tab-pane>
+      </el-tabs>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch, onMounted } from 'vue';
+import { ref, inject, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElTabPane, ElTabs, ElAlert, ElLoading, type TabsPaneContext } from 'element-plus';
-import 'element-plus/theme-chalk/el-tabs.css';
-import 'element-plus/theme-chalk/el-tab-pane.css';
-import 'element-plus/theme-chalk/el-alert.css';
-import 'element-plus/theme-chalk/el-loading.css';
 
 const router = useRouter();
 const route = useRoute();
 const isConnected = inject('isConnected') as boolean;
 const activeTab = ref<any>('privateChat');
 
-function handleTabClick(tab: TabsPaneContext) {
+function handleTabClick(tab: any) {
   activeTab.value = tab.paneName;
-  console.log(activeTab.value)
+
+  // 保留功能未开发提示
   if (tab.paneName === 'following' || tab.paneName === 'receivedLikes') {
     alert('功能未开发');
   } else {
+    // 导航到 ChatList 只在选择私聊时执行
     router.push({ name: 'ChatList' });
   }
 }
@@ -67,8 +55,6 @@ watch(() => route.name, (newVal) => {
     activeTab.value = 'receivedLikes';
   }
 }, { immediate: true });
-onMounted
-
 </script>
 
 <style scoped>
@@ -77,10 +63,18 @@ onMounted
   height: 100vh;
 }
 
-.sidebar {
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+/* 调整左侧导航栏样式 */
+.etab {
+  background-color: rgba(255, 255, 255, 0.5); /* 半透明白色 */
+  width: 100%; /* 调整宽度 */
+  height: 100%;
+  border-radius: 8px; /* 边框圆角 */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* 添加阴影 */
+}
+
+/* 自定义标签内容的样式 */
+.el-tabs__item {
+  color: #ffffff; /* 设置文字颜色 */
 }
 
 .main-content {
@@ -91,5 +85,6 @@ onMounted
 
 .alert-box {
   margin-bottom: 10px;
+  
 }
 </style>
