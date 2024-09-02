@@ -1,12 +1,5 @@
 <!-- MainPage.vue -->
 <template>
-
-  <div>
-    <h1>Welcome, {{ user.nickname }}</h1>
-    <p>{{ user.self_intro }}</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Account created at: {{ formattedDate }}</p>
-  </div>
   <router-view />
 </template>
 

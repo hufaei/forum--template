@@ -1,10 +1,15 @@
 <template>
   <el-form :model="user" class="custom-form">
-    <el-form-item label="昵称">
-      <el-input v-model="formData.nickname" />
+    <el-form-item label-width="80px" style="" label="昵称">
+      <el-input 
+        clearable
+        v-model="formData.nickname" />
     </el-form-item>
-    <el-form-item label="个人简介">
-      <el-input v-model="formData.self_intro" type="textarea" placeholder="请输入个人简介" clearable maxlength=50 show-word-limit />
+    <el-form-item label-width="80px" label="个人简介">
+      <el-input
+       v-model="formData.self_intro"
+        type="textarea" rows=4 placeholder="请输入个人简介"
+        clearable maxlength=50 show-word-limit />
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="submit">保存</el-button>
@@ -35,7 +40,7 @@ const submit = async () => {
 
 <style scoped>
 .custom-form {
-  max-width: 600px;
+  max-width: 80%;
   margin: 0 auto;
   background-color: #00000080; /* 黑色透明背景 */
   padding: 20px;

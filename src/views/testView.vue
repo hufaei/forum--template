@@ -1,20 +1,20 @@
 <template>
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside width="200px" >
         <div class="sider-logo">
           <el-avatar :src="user.avatar" size="large" class="avatar-logo" />
-        </div>
         <el-menu
           default-active="1"
           class="el-menu-vertical"
+          text-color="#000000"
           @select="handleSelect"
         >
           <el-menu-item index="1">一般</el-menu-item>
           <el-menu-item index="2">头像</el-menu-item>
           <el-menu-item index="3">隐私</el-menu-item>
         </el-menu>
-      </el-aside>
+      </div>
+        
   
       <!-- 主体内容 -->
       <el-container>
@@ -36,10 +36,11 @@
             </el-input>
           </div> -->
         </el-header>
-  
-        <el-main>
+
+        <div class="main-content">
           <component :is="currentComponent" />
-        </el-main>
+        </div>
+          
   
         <el-footer>
           &copy; 2024 Your Company. All rights reserved.
@@ -85,11 +86,13 @@
   <style scoped>
 
   .sider-logo {
+    width: 20%;
+    height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 64px;
-    margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.6);
   }
   
   .avatar-logo {
@@ -110,7 +113,13 @@
     background-color: #191a1a;
   }
   .el-menu-vertical{
-    background-color: #191a1a;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  .main-content{
+    width: 100%;
+    height: 100%;
   }
   </style>
   

@@ -1,97 +1,217 @@
-<!-- <template>
-  <VueNavigationBar :options="navbarOptions" />
+<template>
+  <el-menu
+    :default-active="activeIndex"
+    class="el-menu-demo"
+    mode="horizontal"
+    @select="handleSelect"
+    :ellipsis="false"
+    active-text-color="#000000"
+  >
+    <el-menu-item index="home">
+      <el-icon><img src="@/assets/main.png" alt="首页" class="nav-icon"></el-icon>
+      首页
+    </el-menu-item>
+    <el-menu-item index="section">
+      <el-icon><img src="@/assets/sections.png" alt="论坛" class="nav-icon"></el-icon>
+      论坛
+    </el-menu-item>
+    <el-menu-item index="publish">
+      <el-icon><img src="@/assets/publish.png" alt="发布" class="nav-icon"></el-icon>
+      发布
+    </el-menu-item>
+    <div class="flex-grow" />
+
+    <!-- 用户已登录时显示头像和下拉菜单 -->
+    <el-dropdown v-if="isLoggedIn" class="avatar-container" trigger="hover" @command="handleCommand">
+      <div class="avatar-wrapper">
+        <el-avatar :size="32" :src="user.avatar" />
+        <span class="nickname">{{ user.nickname }}</span>
+      </div>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item command="profile">
+            <el-icon><img src="@/assets/user.png" alt="用户中心" class="nav-icon"></el-icon>
+            用户中心
+          </el-dropdown-item>
+          <el-dropdown-item command="editProfile">
+            <el-icon><img src="@/assets/edit.png" alt="账户设置" class="nav-icon"></el-icon>
+            账户设置
+          </el-dropdown-item>
+          <el-dropdown-item command="logout" divided>
+            <el-icon><img src="@/assets/logout.png" alt="登出" class="nav-icon"></el-icon>
+            登出
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+
+    <!-- 用户未登录时显示登录按钮 -->
+    <el-menu-item v-else @click="goToLogin">
+      <el-icon><img src="@/assets/user.png" alt="未登录" class="nav-icon"></el-icon>
+      登录
+    </el-menu-item>
+
+    <!-- 私信消息按钮，未登录时点击提示登录 -->
+    <el-menu-item index="chat" @click="handleChatClick">
+      <mi-notice 
+        :width="320"
+        :dot="false"
+        :amount="unreadTotal"
+        :max-amount="9"
+        :icon-setting="{ size: 20 }"
+        class="message-icon">
+        <template #icon>
+          <img src="@/assets/private.png" alt="私信" class="nav-icon">
+        </template>
+      </mi-notice>
+    </el-menu-item>
+  </el-menu>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, inject, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import VueNavigationBar from 'vue-navigation-bar';
-import { ElAvatar, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
-import { useUserStore } from '@/stores/userStore'; 
+import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/stores/userStore';
+import { useMessageStore } from '@/stores/messageStore';
+import { logoutUser } from '@/requestMethod/useUser'; // 引入登出方法
 
 const router = useRouter();
 const userStore = useUserStore();
+const isLoggedIn = ref(!!userStore.token); // 根据是否存在 token 判断用户是否已登录
+const messageStore = useMessageStore();
+const activeIndex = ref('home');
+const unreadTotal = ref(0);
+let user = userStore.user;
+const goEasy = inject('goEasy') as any;
+const isConnected = inject('isConnected') as any;
 
-const handleLogout = () => {
-  userStore.clearUser(); // 清空 userStore
-  router.push({ name: 'home' }); // 跳转到首页
+// 获取未读消息数量
+const fetchUnreadMessages = async () => {
+  if (goEasy && isConnected && isLoggedIn.value) {
+    try {
+      goEasy.im.latestConversations({
+        onSuccess: (result: any) => {
+          console.log('Fetched unread messages:', result);
+          unreadTotal.value = result.content.unreadTotal; // 假设 result.content 包含 unreadTotal
+        },
+        onFailed: (error: any) => {
+          console.error('Failed to get the latest conversations, code:', error.code, ' content:', error.content);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+    }
+  }
 };
 
-const navbarOptions = ref({
-  elementId: "main-navbar",
-  isUsingVueRouter: true,
-  mobileBreakpoint: 992,
-
-  collapseButtonOpenColor: "#661c23",
-  collapseButtonCloseColor: "#661c23",
-  showBrandImageInMobilePopup: true,
-  ariaLabelMainNav: "Main Navigation",
-  tooltipAnimationType: "shift-away",
-  tooltipPlacement: "bottom",
-  menuOptionsLeft: [
-    { type: 'link', text: '首页', path: { name: 'home' }, iconLeft: '<img src="src/assets/main.png" alt="首页" class="nav-icon">' },
-    { type: 'link', text: '论坛', path: { name: 'section' }, iconLeft: '<img src="src/assets/sections.png" alt="论坛" class="nav-icon">' },
-    { type: 'link', text: '发布', path: { name: 'publish' }, iconLeft: '<img src="src/assets/publish.png" alt="发布" class="nav-icon">' }
-  ],
-  menuOptionsRight: [
-    {
-      type: 'component',
-      component: {
-        template: `
-          <el-dropdown>
-            <span class="el-dropdown-link">
-              <el-avatar src="@/assets/user-avatar.png" size="default"></el-avatar>
-              <span>用户名</span>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>
-                <img src="@/assets/user.png" alt="用户中心" class="nav-icon"> 用户中心
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <img src="@/assets/edit.png" alt="账户设置" class="nav-icon"> 账户设置
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        `
-      }
-    },
-    { type: 'link', text: '', path: { name: 'ChatList' }, iconLeft: '<img src="src/assets/private.png" alt="私信" class="nav-icon">' },
-    {
-      type: 'component',
-      component: {
-        template: `
-          <button @click="handleLogout">
-            <img src="@/assets/logout.png" alt="登出" class="nav-icon">
-          </button>
-        `,
-        methods: {
-          handleLogout
-        }
-      }
-    }
-  ]
+// 监听 isConnected 的变化
+watch(isConnected, (newValue) => {
+  if (newValue) {
+    fetchUnreadMessages();
+  }
 });
+
+// 初始检查
+onMounted(() => {
+  user = userStore.user;
+  if (isConnected) {
+    fetchUnreadMessages();
+  }
+});
+
+const handleCommand = (command: string) => {
+  const userId = user.id; // 获取当前用户 ID
+
+  switch (command) {
+    case 'profile':
+      router.push({ name: 'profile', params: { userId } });
+      break;
+    case 'editProfile':
+      router.push({ name: 'editProfile'});
+      break;
+    case 'logout':
+      handleLogout();
+      break;
+    default:
+      router.push({ name: command });
+      break;
+  }
+};
+
+const handleSelect = (key: string) => {
+  if (key === 'logout') {
+    handleLogout();
+  } else {
+    router.push({ name: key });
+  }
+};
+
+const handleLogout = async () => {
+  const success = await logoutUser();
+  if (success) {
+    isLoggedIn.value = false; // 更新登录状态
+    router.push({ name: 'home' }); // 登出后导航到首页
+  }
+};
+
+const goToLogin = () => {
+  router.push({ name: 'login' });
+};
+
+const handleChatClick = () => {
+  if (!isLoggedIn.value) {
+    ElMessage.error('请先登录后再查看私信');
+  } else {
+    router.push({ name: 'chat' });
+  }
+};
 </script>
 
 <style scoped>
-.vnb {
-  background: #ff784b; /* Sunset Orange */
-  --vnb-background-color: #fff2e8; /* A lighter shade for contrast */
-  width: 100%;
-  height: 60px; /* 设置适当的高度 */
-  margin-top: 0%;
+.el-menu-demo {
+  display: flex;
+  align-items: center;
+  background: white;
+  color: black;
 }
 
-.vnb__link {
-  color: #fa541c;
-}
-
-.vnb__link:hover {
-  color: #d4380d;
+.flex-grow {
+  flex-grow: 1;
 }
 
 .nav-icon {
-  width: 20px; /* 设置图片宽度 */
-  height: 20px; /* 设置图片高度 */
+  width: 20px;
+  height: 20px;
 }
-</style> -->
+
+.el-menu-item, .el-sub-menu__title {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-container {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nickname {
+  margin-left: 8px;
+  color: #1d1d1d;
+}
+
+.message-icon {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  margin-right: 15px; /* Add margin-right to separate it from the avatar */
+}
+</style>

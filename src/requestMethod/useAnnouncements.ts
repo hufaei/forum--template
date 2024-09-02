@@ -5,10 +5,10 @@ import { getRequestConfig } from '@/utils/RequestConfig';
 
 const { $request } = useRequest();
 
-const announcements = ref([]);
+const announcements =  ref<Announcement[]>([]);
 const errorMessage = ref<string | null>(null);
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(3);
 const total = ref(0);
 const searchText = ref('');
 const sortField = ref('');
@@ -41,4 +41,11 @@ const fetchAnnouncements = async () => {
   }
 };
 
-export { fetchAnnouncements, announcements, errorMessage, currentPage, pageSize, total, searchText, sortField, sortOrder };
+export { fetchAnnouncements, announcements, errorMessage,  total, searchText, sortField, sortOrder };
+// 在 useAnnouncements.ts 文件中
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  updatedAt: string;
+}

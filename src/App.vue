@@ -3,6 +3,7 @@
     <!-- 只有当用户不在登录或注册页面时才显示导航栏 -->
     <navBar v-if="!isAuthPage" />
     <router-view />
+    <FixedIcons />
   </div>
 </template>
 
@@ -10,8 +11,8 @@
 import { inject, onMounted, provide, ref, watch } from 'vue';
 import { useRoute } from 'vue-router'; // 引入 useRoute 来访问当前路由
 import { useUserStore } from '@/stores/userStore';
-import navBar from '@/components/navBar1.vue';
-
+import navBar from '@/components/NavBar.vue';
+import FixedIcons from './components/FixedIcons.vue';
 const userStore = useUserStore();
 const route = useRoute(); // 获取当前路由
 const goEasy = inject('goEasy') as any;

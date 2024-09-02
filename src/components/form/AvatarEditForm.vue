@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding: 60px;">
     <mi-title title="头像预览" />
     <div class="avatar-preview">
       <div class="avatar-item">
@@ -14,23 +14,25 @@
         <el-avatar shape="square" :src="user.avatar" class="avatar-small" />
         <span>32px</span>
       </div>
-      <el-upload
-        class="avatar-uploader"
-        list-type="picture"
-        :show-file-list="false"
-        :http-request="handleAvatarUpload"
-        :before-upload="beforeAvatarUpload"
-      >
-        <el-tooltip content="点击上传用户头像" placement="top">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-          <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-        </el-tooltip>
-      </el-upload>
-      <div style="display:flex;flex-direction:column">
-        <span>从您的设备上传一个文件</span>
-        <span>头像文件应该为jpg以及png格式</span>
+      <div class="loader">
+        <el-upload
+          class="avatar-uploader"
+          list-type="picture"
+          :show-file-list="false"
+          :http-request="handleAvatarUpload"
+          :before-upload="beforeAvatarUpload"
+        >
+          <el-tooltip content="点击上传用户头像" placement="top">
+            <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-tooltip>
+        </el-upload>
+        <div style="display:flex;flex-direction:column">
+          <span>从您的设备上传一个文件</span>
+          <span>头像文件应该为jpg以及png格式</span>
+        </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -106,19 +108,6 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   margin-top: 20px;
 }
 
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
 .el-icon.avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -147,5 +136,28 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 .avatar-small {
   width: 32px;
   height: 32px;
+}
+.loader{
+  display: flex;
+  transform: translateY(-60px); /* 使用 transform 移动元素 */
+  flex-direction: row;
+  justify-items: baseline;
+  align-items: baseline;
+  width: fit-content;
+  padding: 20px;
+  margin-left: 50px;
+  margin-bottom: 20px;
+}
+</style>
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed black;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
 }
 </style>

@@ -1,52 +1,32 @@
 <template>
-    <el-form :model="privacySettings">
-      <el-form-item label="旧密码">
-        <el-input v-model="privacySettings.oldPassword" type="password" />
-      </el-form-item>
-      <el-form-item label="新密码">
-        <el-input v-model="privacySettings.newPassword" type="password" />
-      </el-form-item>
-      <el-form-item label="确认新密码">
-        <el-input v-model="privacySettings.confirmNewPassword" type="password" />
-      </el-form-item>
-      <mi-password :confirm="true" />
-      <el-form-item label="公开个人信息">
-        <el-select v-model="privacySettings.infoVisibility" placeholder="请选择">
-          <el-option label="公开" value="public"></el-option>
-          <el-option label="仅好友" value="friends"></el-option>
-          <el-option label="均不公开" value="private"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="邮箱">
-        <el-input v-model="privacySettings.email" disabled />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="submit">保存</el-button>
-      </el-form-item>
-    </el-form>
-  </template>
-  
-  <script setup lang="ts">
-  import { reactive } from 'vue';
-  
-  const privacySettings = reactive({
-    oldPassword: '',
-    newPassword: '',
-    confirmNewPassword: '',
-    email: '',
-    infoVisibility: 'public',
-  });
-  
-  const submit = () => {
-    // 提交逻辑
-    console.log('Privacy Settings Submitted:', privacySettings);
-  };
-  </script>
-  
-  <style scoped>
-  .el-form {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  </style>
-  
+  <div class="forgot-password-container">
+    <div>内容我暂定好吧，姑且写一个跳转</div>
+    <div><router-link to="/reset-password" class="forgot-password-link">
+      密码不太好记？修改密码
+    </router-link></div>
+    
+  </div>
+</template>
+
+<script lang="ts" setup>
+</script>
+
+<style scoped>
+.forgot-password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 高度占满整个视口高度，确保垂直居中 */
+}
+
+.forgot-password-link {
+  font-size: 18px;
+  text-decoration: none;
+  color: #3498db; /* 你可以根据需求调整颜色 */
+  transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+  color: #2980b9; /* 悬停时颜色变化 */
+}
+</style>
