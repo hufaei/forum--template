@@ -106,7 +106,6 @@
     follows: { id: number; avatar: string; nickname: string ;isMutual:boolean}[];
     createdAt: string;
   }
-  const showHoverIcon = ref(false); // 控制图标悬停
   const displayUser = ref<User>({
     id: 0,
     avatar: '',

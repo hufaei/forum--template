@@ -1,26 +1,42 @@
 <template>
   <div class="topic-detail">
     <div class="topic-header">
-      <span>{{ topic.userId }}</span>
+      <div style="display:flex;align-items: center;">
+        <el-avatar v-if="user" :src="user.avatar" shape="square" size="large" class="user-avatar" />
+        <div style="font-weight: bold;font-size:medium">{{ user?.nickname }}</div>
+      </div>
+      
       <span>分享</span>
     </div>
     <div class="topic-body">
-      <img v-if="topic.image" :src="topic.image" alt="Topic Image">
-      <p>{{ topic.content }}</p>
+      <p style="padding-left:10%;text-align: start;">{{ topic?.content }}</p>
+
+      <div v-if="topicImages(topic?.image).length > 0" class="image-gallery">
+        <el-image
+          v-for="(image, index) in topicImages(topic.image)"
+          :key="index"
+          :src="image"
+          fit="cover"
+          lazy
+          class="topic-image"
+        />
+      </div>
+
     </div>
     <div class="topic-footer">
-      <span>浏览数: {{ topic.viewCount }}</span>
-      <span>{{ topic.createdAt }}</span>
+      <span>浏览数: {{ topic?.viewCount }}</span>
+      <span>{{ topic?.createdAt }}</span>
     </div>
     <el-divider></el-divider>
-    <!-- <div v-if="totalReplies > 0" class="total-replies">共{{ totalReplies }}条回复</div> -->
+
+    <!-- 评论列表 -->
     <div
       v-infinite-scroll="loadMoreComments"
       infinite-scroll-disabled="false"
-      infinite-scroll-distance="1"
+      infinite-scroll-distance="10"
+      infinite-scroll-immediate=false
       class="comments"
     >
-      <!-- 评论列表 -->
       <el-card v-for="comment in comments" :key="comment.id" class="comment-card">
         <div class="comment-content">{{ comment.nickName }}: {{ comment.content }}</div>
         <div class="comment-footer">
@@ -51,12 +67,16 @@
           </div>
         </div>
       </el-card>
-      <el-empty v-if="!comments.length && !loading.valueOf" description="暂无评论" />
+      <el-empty v-if="!comments.length" description="暂无评论" />
     </div>
+
+    <!-- 评论输入框 -->
     <div class="comment-input">
       <el-input v-model="newComment" placeholder="输入评论..." />
       <el-button @click="submitComment">提交</el-button>
     </div>
+
+    <!-- 操作按钮 -->
     <div class="actions">
       <img :src="likeIcon" @click="toggleLike" class="icon" alt="点赞">
       <img src="@/assets/comment.png" class="icon" alt="评论">
@@ -64,101 +84,156 @@
     </div>
   </div>
 </template>
-
+  
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchComments, submitCommentApi, type Comment } from '@/requestMethod/useComment';
 import { fetchReplies, addReply, type Replies } from '@/requestMethod/useReplies';
+import { fetchTopic } from '@/requestMethod/useTopics'; // 获取话题详情
+import { getUserVo } from '@/requestMethod/useUser'; // 获取用户信息
 import { ElMessage } from 'element-plus';
 import { ArrowDown } from '@element-plus/icons-vue';
 
 const route = useRoute();
-const topic = JSON.parse(route.query.topic as string);
-
-const comments = ref<Comment[]>([]);
-const newComment = ref<string>('');
-const newReplyContent = ref<string>(''); // 用于回复的内容
-const loading = ref<boolean>(false);
-let commentOffset = 0;
-const limit = 8;
-
-const repliesMap = reactive<Record<number, Replies[]>>({});
-const showRepliesMap = reactive<Record<number, boolean>>({});
-const replyCounts = reactive<Record<number, number>>({});
-const totalReplies = ref<number>(0);
+const topicId = route.params.topicId as string; // 从路由中获取 topicId
 const likeIcon = ref<string>("/src/assets/point-re.png");
 
-const replyTo = ref<number | null>(null); // 当前要回复的评论 ID
-const replyPlaceholder = computed(() => replyTo.value ? `回复 ${comments.value.find(c => c.id === replyTo.value)?.nickName}` : '输入回复...');
+let topic = ref<any>(null); // 用于存储话题详情
+let user = ref<{ nickname: string; avatar: string } | null>(null); // 用于存储用户信息
+let hasMore = ref<boolean>(true); // 标志位，用于控制是否还有更多数据
+// 评论相关
+let comments = ref<Comment[]>([]);
+let newComment = ref<string>('');
+let newReplyContent = ref<string>(''); // 用于回复的内容
+let loading = ref<boolean>(false); // 保留loading用于加载评论部分
+let currentPage = ref<number>(1); // 当前页数，初始化为1
+// 回复相关
+let repliesMap = reactive<Record<number, Replies[]>>({});
+let showRepliesMap = reactive<Record<number, boolean>>({});
+let replyCounts = reactive<Record<number, number>>({});
+let totalReplies = ref<number>(0);
+let replyTo = ref<number | null>(null); // 当前要回复的评论 ID
+let replyPlaceholder = computed(() => 
+  replyTo.value ? `回复 ${comments.value.find(c => c.id === replyTo.value)?.nickName}` : '输入回复...'
+);
+
+// 获取话题详情并加载用户信息
+const loadTopicDetails = async () => {
+  try {
+    const topicData = await fetchTopic(Number(topicId));
+    topic.value = topicData;
+    const userData = await getUserVo(topicData.userId);
+    user.value = {
+      nickname: userData.nickname,
+      avatar: userData.avatar,
+    };
+    console.log("加载话题详情：", topic.value);
+    await loadComments(); // 加载第一页的评论
+  } catch (error) {
+    ElMessage.error('加载话题详情或用户信息失败');
+  }
+};
 
 const loadComments = async () => {
+  if (!topic.value) {
+    ElMessage.error('加载话题失败');
+    return;
+  }
   loading.value = true;
   try {
-    const data = await fetchComments(topic.id);
-    comments.value.push(...data.slice(commentOffset, commentOffset + limit));
-    await Promise.all(comments.value.map(async (comment) => {
-      const replies = await fetchReplies(comment.id);
-      repliesMap[comment.id] = replies;
-      replyCounts[comment.id] = replies.length;
-      totalReplies.value += replies.length;
-    }));
+    const data = await fetchComments(topic.value.id, currentPage.value);
+
+    if (data.length === 0) {
+      // 如果没有更多数据，设置 hasMore 为 false
+      hasMore.value = false;
+      loading.value = false;
+      return;
+    }
+
+    // 去除重复评论
+    const existingCommentIds = new Set(comments.value.map(comment => comment.id));
+    const uniqueData = data.filter((comment: any) => !existingCommentIds.has(comment.id));
+
+    // 将新评论追加到评论列表中
+    comments.value.push(...uniqueData);
+
+    // 加载评论的回复
+    await Promise.all(
+      comments.value.map(async (comment) => {
+        const replies = await fetchReplies(comment.id);
+        repliesMap[comment.id] = replies;
+        replyCounts[comment.id] = replies.length;
+        totalReplies.value += replies.length;
+      })
+    );
   } catch (error) {
-    ElMessage.error('获取评论失败');
+    ElMessage.error("获取评论失败");
   } finally {
     loading.value = false;
   }
 };
 
+// 修改 loadMoreComments 方法
 const loadMoreComments = () => {
-  if (!loading.value) {
-    commentOffset += limit;
-    loadComments();
+  if (!loading.value && topic.value && hasMore.value) {
+    currentPage.value += 1; // 增加页数
+    loadComments(); // 加载下一页的评论
+  }else{
+    console.log("当前页数：",currentPage.value)
   }
 };
 
+// 提交评论
 const submitComment = async () => {
-  if (!newComment.value) return;
+  if (!newComment.value || !topic.value) return;
   try {
     const newCommentData = {
       content: newComment.value,
-      topicId: topic.id,
-      userId: 1 // 假设用户ID为1，可以根据实际情况调整
+      topicId: topic.value.id,
+      userId: 1 // 随便改反正token会告诉你id是多少
     };
     await submitCommentApi(newCommentData);
-    ElMessage.success('评论已提交');
-    newComment.value = '';
-    commentOffset = 0;
-    comments.value = [];
-    loadComments();
+    ElMessage.success("评论已提交");
+    newComment.value = "";
+    currentPage.value = 1; // 重置页数
+    comments.value = []; // 清空评论列表
+    loadComments(); // 重新加载评论
   } catch (error) {
-    ElMessage.error('提交评论失败');
+    ElMessage.error("提交评论失败");
   }
 };
 
+const topicImages = (imageStr: string | null): string[] => {
+  return imageStr ? imageStr.split(',') : [];
+};
+
+// 提交回复
 const submitReply = async (commentId: number) => {
   if (!newReplyContent.value) return;
   try {
     const newReplyData = {
       commentId,
       content: newReplyContent.value,
-      userId: 1 // 假设用户ID为1，可以根据实际情况调整
+      userId: 1, // 大概不重要
     };
     await addReply(newReplyData);
-    ElMessage.success('回复已提交');
-    newReplyContent.value = '';
-    replyTo.value = null; // 清空回复状态
+    ElMessage.success("回复已提交");
+    newReplyContent.value = "";
+    replyTo.value = null;
     loadComments(); // 重新加载评论
   } catch (error) {
-    ElMessage.error('提交回复失败');
+    ElMessage.error("提交回复失败");
   }
 };
 
+// 切换回复显示
 const toggleReplies = async (commentId: number) => {
   showRepliesMap[commentId] = !showRepliesMap[commentId];
   replyTo.value = commentId; // 设置当前要回复的评论 ID
 };
 
+// 格式化回复时间
 const formatReplyTime = (dateStr: string) => {
   const date = new Date(dateStr);
   const now = new Date();
@@ -175,25 +250,46 @@ const formatReplyTime = (dateStr: string) => {
     const hours = Math.floor(diff / oneHour);
     return `${hours}小时前`;
   }
-  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'numeric', day: 'numeric' });
+  return date.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
 };
 
+// 点赞图标切换
 const toggleLike = () => {
-  likeIcon.value = likeIcon.value === "/src/assets/point-re.png" ? "/src/assets/point.png" : "/src/assets/point-re.png";
+  likeIcon.value =
+    likeIcon.value === "/src/assets/point-re.png"
+      ? "/src/assets/point.png"
+      : "/src/assets/point-re.png";
 };
 
-onMounted(() => {
-  loadComments();
+onMounted(async () => {
+  await loadTopicDetails(); // 页面挂载时加载话题详情和用户信息
 });
 </script>
 
+
+
 <style scoped>
 .topic-detail {
-  padding: 20px;
+  padding: 30px;
 }
-.topic-header, .topic-footer {
+.topic-header{
+  padding-left: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+.topic-footer {
+  padding-left: 30px;
   display: flex;
   justify-content: space-between;
+}
+.user-avatar {
+  margin-right: 20px;
 }
 .topic-body img {
   max-width: 100%;
@@ -201,7 +297,7 @@ onMounted(() => {
 }
 .comments {
   overflow-y: auto;
-  max-height: 400px; /* 设置一个合理的高度以便触发滚动 */
+  max-height: 400px;
 }
 .comment-input {
   display: flex;
@@ -224,7 +320,7 @@ onMounted(() => {
 .comment-card {
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #ddd; /* 添加分割线 */
+  border-bottom: 1px solid #ddd;
   border-radius: 10px;
 }
 .comment-footer {
@@ -234,13 +330,13 @@ onMounted(() => {
   margin-top: 10px;
 }
 .comment-content {
-  text-align: left; /* 评论内容靠左显示 */
+  text-align: left;
 }
 .replies-toggle {
   color: gray;
   cursor: pointer;
   transition: color 0.3s;
-  text-align: center; /* 居中显示 */
+  text-align: center;
 }
 .replies-toggle:hover {
   color: black;
@@ -248,34 +344,26 @@ onMounted(() => {
 .click-reply {
   color: gray;
   cursor: pointer;
-  text-align: center; /* 居中显示 */
+  text-align: center;
   transition: color 0.3s;
 }
-
 .click-reply:hover {
   color: black;
 }
-
 .reply-card {
   margin-top: 10px;
   padding: 5px;
   border-left: 2px solid #ddd;
-  text-align: left; /* 回复内容靠左显示 */
+  text-align: left;
 }
 .reply-time {
   font-size: 0.8em;
   color: #888;
 }
-.total-replies {
-  text-align: center; /* 总回复数居中显示 */
-  margin: 10px 0; /* 添加一些上下间距 */
-}
-
 .reply-input {
   display: flex;
-  align-items: center; /* 输入框和发送图标垂直居中 */
+  align-items: center;
 }
-
 .custom-input {
   background-color: #ffffff;
   width: 100%;
@@ -284,21 +372,31 @@ onMounted(() => {
   border: 2px solid rgb(152, 152, 152);
   border-radius: 5px;
 }
-
 .custom-input:focus {
-  color: #effffb;
+  color: #010101;
   background-color: #effffb;
-  outline-color: rgb(65, 65, 65);
-  box-shadow: -3px -3px 15px rgb(65, 65, 65);
   transition: .1s;
-  transition-property: box-shadow;
 }
-
 .send-icon {
-  margin-left: -35px; /* 让图标覆盖输入框内 */
+  margin-left: -35px;
   cursor: pointer;
   color: white;
   width: 24px;
   height: 24px;
 }
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 10px;
+}
+.topic-image {
+  width: 200px;
+  height: 200px;
+  margin-right: 30px;
+  object-fit: cover;
+}
+
 </style>
+

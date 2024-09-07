@@ -11,8 +11,8 @@ const currentPage = ref(1);
 const pageSize = ref(3);
 const total = ref(0);
 const searchText = ref('');
-const sortField = ref('');
-const sortOrder = ref('');
+const sortField = ref('updatedAt');
+const sortOrder = ref('descend');
 const rconfig = getRequestConfig()
 const fetchAnnouncements = async () => {
   try {

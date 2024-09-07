@@ -14,12 +14,28 @@ setActivePinia(pinia);
 export const getRequestConfig = (): RequestConfig => {
   const userStore = useUserStore();
   const token = userStore.token; 
-  console.log(token)
   
 
   return {
     headers: {
       'Content-Type': 'application/json',
+      'satoken':token
+    },
+    retry: 3,
+    retryDelay: 100,
+    retryCount: 0,
+    responseType: 'json',
+    withCredentials: false // 允许携带凭证---目前不明原因的报错因此解决但是我知道这允许cookies自动传入satoken
+  };
+};
+export const ImageRConfig = (): RequestConfig => {
+  const userStore = useUserStore();
+  const token = userStore.token; 
+  
+
+  return {
+    headers: {
+      'Content-Type': 'multipart/form-data',
       'satoken':token
     },
     retry: 3,

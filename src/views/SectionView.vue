@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Section View</h2>
     <SectionComponent />
     <router-view></router-view>
   </div>

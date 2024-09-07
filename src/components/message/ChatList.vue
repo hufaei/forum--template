@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElCard, ElAvatar, ElEmpty, ElImage } from 'element-plus';
+import { ElCard, ElAvatar, ElEmpty } from 'element-plus';
 
 
 import 'element-plus/theme-chalk/el-card.css';
@@ -50,7 +50,6 @@ import 'element-plus/theme-chalk/el-image.css';
 
 const router = useRouter();
 const goEasy = inject('goEasy') as any;
-const deleicon = "@/assets/con-delete.png";
 const conversations = ref<Array<any>>([]); 
 const hoveredCard = ref<number | null>(null); 
 

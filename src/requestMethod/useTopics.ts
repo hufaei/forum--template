@@ -1,13 +1,28 @@
 import { getRequestConfig } from '@/utils/RequestConfig';
 import { useRequest, type ResponseData} from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
+import type { Ref } from 'vue';
 
 const { $request } = useRequest();
 const rconfig = getRequestConfig()
 
-const fetchTopics = async (sectionId: number) => {
+const fetchTopics = async (sectionId: number,current:number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/TopicsVo/${sectionId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/TopicsVo/${sectionId}/${current}`, {}, rconfig);
+    if (response.ret.code === 200) {
+      return response.data;
+    } else {
+      ElMessage.error(response.ret.message);
+      throw new Error(response.ret.message);
+    }
+  } catch (error) {
+    ElMessage.error('获取话题列表失败，请重试。');
+    throw error;
+  }
+};
+const fetchTopic = async (topicId: number) => {
+  try {
+    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/TopicVo/${topicId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -34,7 +49,7 @@ const fetchTopicsByUserId = async (userId: number) => {
     throw error;
   }
 };
-const addTopic = async (data: { content: string; image:string ; sectionId: number; userId: number }) => {
+const addTopic = async (data: { content: string; image:string[] ; sectionId: number; userId: number }) => {
   try {
     const response: ResponseData = await $request.post(`http://localhost:8080/topics/add`, data, rconfig);
     if (response.ret.code === 200) {
@@ -66,7 +81,7 @@ const deleteTopic = async (topicId: number) => {
     throw error;
   }
 };
-export { fetchTopics, fetchTopicsByUserId,addTopic ,deleteTopic};
+export { fetchTopics, fetchTopic, fetchTopicsByUserId, addTopic, deleteTopic};
 
 export interface Topic {
   id: number;

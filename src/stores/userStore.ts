@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user') || '{}'),
-    token: localStorage.getItem('token') || '', // 初始化时从localStorage中读取token
+    token: localStorage.getItem('token') || '', 
   }),
   actions: {
     setUser(userData: any) {
@@ -13,6 +13,11 @@ export const useUserStore = defineStore('user', {
     setToken(token: string) {
       this.token = token;
       localStorage.setItem('token', token); // 将token保存到localStorage中
+    },
+    updateAvatar(newAvatarUrl: string) {
+      // 更新用户信息中的头像 URL
+      this.user.avatar = newAvatarUrl;
+      localStorage.setItem('user', JSON.stringify(this.user));
     },
     clear() {
       this.user = {};

@@ -32,58 +32,30 @@
         </div>
       </div>
     </div>
-    
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import { ElMessage } from 'element-plus';
 import type { UploadProps } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
-import { updateUser } from '@/requestMethod/useUser';
+import { uploadAvatar } from '@/requestMethod/useUser'; // 确保路径正确
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
-const imageUrl = ref('');
-const compressImage = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.src = e.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        resolve(dataUrl);
-      };
-      img.onerror = (error) => {
-        reject(error);
-      };
-    };
-    reader.onerror = (error) => {
-      reject(error);
-    };
-    reader.readAsDataURL(file);
-  });
-};
 const handleAvatarUpload: UploadProps['httpRequest'] = async (options) => {
-  const { file, onSuccess, onError } = options;
-  try {
-    const compressedAvatar = await compressImage(file as File);
-    await updateUser({ avatar: compressedAvatar });
-    userStore.setUser({ ...user.value, avatar: compressedAvatar });
-    imageUrl.value = compressedAvatar;
-    ElMessage.success('头像上传成功！');
-  } catch (error) {
-    ElMessage.error('上传失败，请重试');
+  const file = options.file as File;
+
+  const url = await uploadAvatar(file);
+
+  if (typeof url === 'string') {
+    // 如果返回值是 string 类型，则更新用户头像
+    userStore.updateAvatar(url);
   }
 };
+
 
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   const isJPG = rawFile.type === 'image/jpeg' || rawFile.type === 'image/png';
@@ -137,7 +109,8 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   width: 32px;
   height: 32px;
 }
-.loader{
+
+.loader {
   display: flex;
   transform: translateY(-60px); /* 使用 transform 移动元素 */
   flex-direction: row;
@@ -149,6 +122,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   margin-bottom: 20px;
 }
 </style>
+
 <style>
 .avatar-uploader .el-upload {
   border: 1px dashed black;

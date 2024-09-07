@@ -2,12 +2,13 @@ import { ref } from 'vue';
 
 import { useRequest, type ResponseData} from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
-import { getRequestConfig } from '@/utils/RequestConfig'; // 导入配置函数
+import { getRequestConfig,ImageRConfig } from '@/utils/RequestConfig'; // 导入配置函数
 const { $request } = useRequest();
 
 
 const errorMessage = ref<string | null>(null);
 const rconfig = getRequestConfig()
+const iconfig = ImageRConfig()
 
 interface UsersUpdateRequest {
   id: number;
@@ -150,5 +151,30 @@ const register = async (data: RegisterData) => {
   }
 };
 
+const uploadAvatar = async (file: File) => {
+  try {
+    // 创建 FormData 对象
+    const formData = new FormData();
+    formData.append('file', file); // 添加文件到 FormData
 
-export { getUserVo, updateUser, loginUser, logoutUser,register, errorMessage };
+    // 发起 POST 请求
+    const response: ResponseData = await $request.post(
+      'http://localhost:8080/users/updateAvatar',
+      formData,
+      iconfig
+    );
+
+    if (response.ret.code === 200) {
+      ElMessage.success('上传成功');
+      return response.ret.message;
+    } else {
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    console.error('上传失败:', error);
+    ElMessage.error('上传失败，请重试。');
+    return false;
+  }
+};
+export { getUserVo, updateUser, loginUser, logoutUser,register,uploadAvatar ,errorMessage };

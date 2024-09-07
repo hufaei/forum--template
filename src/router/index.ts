@@ -34,19 +34,13 @@ const routes = [
           {
               path: "section",
               name: "section",
-              component: SectionView,
-              // children: [
-              //     {
-              //         path: "topic",
-              //         name: "topic",
-              //         component: TopicView
-              //     }
-              // ]
+              component: SectionView
           },
           {
-              path: "topic",
-              name: "topic",
-              component: TopicView
+            
+            path: "topic/:topicId",
+            name: "topic",
+            component: TopicView
           }
       ]
   },

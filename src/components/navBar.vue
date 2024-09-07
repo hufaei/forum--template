@@ -73,13 +73,12 @@ import { ref, inject, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/userStore';
-import { useMessageStore } from '@/stores/messageStore';
 import { logoutUser } from '@/requestMethod/useUser'; // 引入登出方法
+
 
 const router = useRouter();
 const userStore = useUserStore();
-const isLoggedIn = ref(!!userStore.token); // 根据是否存在 token 判断用户是否已登录
-const messageStore = useMessageStore();
+const isLoggedIn = ref(!!userStore.user); // 根据是否存在 token 判断用户是否已登录
 const activeIndex = ref('home');
 const unreadTotal = ref(0);
 let user = userStore.user;
@@ -105,18 +104,30 @@ const fetchUnreadMessages = async () => {
   }
 };
 
+
+var onConversationsUpdated = function (content:any) {
+  unreadTotal.value = content.unreadTotal;
+};
+
+
+
 // 监听 isConnected 的变化
 watch(isConnected, (newValue) => {
   if (newValue) {
     fetchUnreadMessages();
+    //监听会话列表更新
+    goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
   }
 });
 
 // 初始检查
 onMounted(() => {
   user = userStore.user;
+
   if (isConnected) {
     fetchUnreadMessages();
+  //   //监听会话列表更新
+  // goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
   }
 });
 
@@ -151,6 +162,7 @@ const handleLogout = async () => {
   const success = await logoutUser();
   if (success) {
     isLoggedIn.value = false; // 更新登录状态
+    user = userStore.user;
     router.push({ name: 'home' }); // 登出后导航到首页
   }
 };
