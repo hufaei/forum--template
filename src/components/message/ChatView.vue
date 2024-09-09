@@ -203,7 +203,7 @@ function scrollToBottom() {
 
 .message-box {
   flex: 3;
-  background-color: #f4f5f7; /* 修改聊天背景颜色 */
+  background-color: #f4f5f7;
   border-bottom: 1px solid #ddd;
   overflow-y: auto;
 }
@@ -225,7 +225,7 @@ function scrollToBottom() {
 }
 
 .message-content {
-  background-color: #fff; /* 修改聊天气泡颜色为白色 */
+  background-color: #fff; 
   color: #333;
   padding: 10px;
   border-radius: 10px;

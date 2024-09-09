@@ -3,7 +3,7 @@
     <div class="topic-header">
       <div style="display:flex;align-items: center;">
         <el-avatar v-if="user" :src="user.avatar" shape="square" size="large" class="user-avatar" />
-        <div style="font-weight: bold;font-size:medium">{{ user?.nickname }}</div>
+        <div class="nickname" @click="navigateToProfile(user?.id)">{{ user?.nickname }}</div>
       </div>
       
       <span>分享</span>
@@ -49,7 +49,7 @@
           <div v-if="showRepliesMap[comment.id]" class="replies-container">
             <el-card v-for="reply in repliesMap[comment.id]" :key="reply.id" class="reply-card">
               <div>
-                <router-link :to="`/profile/${reply.userId}`">{{ reply.nickName }}</router-link> 回复: {{ reply.content }}
+                <router-link :to="`/profile/${reply.userId}`">{{ reply.userId === Myuser.id ? '我' : reply.nickName }}</router-link> 回复: {{ reply.content }}
               </div>
               <div class="reply-time">{{ formatReplyTime(reply.createdAt) }}</div>
             </el-card>
@@ -86,7 +86,7 @@
 </template>
   
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { ref, reactive, onMounted, computed} from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchComments, submitCommentApi, type Comment } from '@/requestMethod/useComment';
 import { fetchReplies, addReply, type Replies } from '@/requestMethod/useReplies';
@@ -94,20 +94,23 @@ import { fetchTopic } from '@/requestMethod/useTopics'; // 获取话题详情
 import { getUserVo } from '@/requestMethod/useUser'; // 获取用户信息
 import { ElMessage } from 'element-plus';
 import { ArrowDown } from '@element-plus/icons-vue';
+import { useUserStore } from '@/stores/userStore';
+import router from '@/router';
 
 const route = useRoute();
 const topicId = route.params.topicId as string; // 从路由中获取 topicId
 const likeIcon = ref<string>("/src/assets/point-re.png");
-
+const userStore = useUserStore();
+let Myuser = userStore.user;
 let topic = ref<any>(null); // 用于存储话题详情
-let user = ref<{ nickname: string; avatar: string } | null>(null); // 用于存储用户信息
+let user = ref<{ id:number,nickname: string; avatar: string } | null>(null); // 用于存储用户信息
 let hasMore = ref<boolean>(true); // 标志位，用于控制是否还有更多数据
 // 评论相关
 let comments = ref<Comment[]>([]);
 let newComment = ref<string>('');
 let newReplyContent = ref<string>(''); // 用于回复的内容
 let loading = ref<boolean>(false); // 保留loading用于加载评论部分
-let currentPage = ref<number>(1); // 当前页数，初始化为1
+let currentPage = ref<number>(1); // 当前页数，初始化为1m
 // 回复相关
 let repliesMap = reactive<Record<number, Replies[]>>({});
 let showRepliesMap = reactive<Record<number, boolean>>({});
@@ -125,6 +128,7 @@ const loadTopicDetails = async () => {
     topic.value = topicData;
     const userData = await getUserVo(topicData.userId);
     user.value = {
+      id:userData.id,
       nickname: userData.nickname,
       avatar: userData.avatar,
     };
@@ -268,6 +272,12 @@ const toggleLike = () => {
 onMounted(async () => {
   await loadTopicDetails(); // 页面挂载时加载话题详情和用户信息
 });
+
+
+// 跳转到用户的个人页面
+const navigateToProfile = (userId: any) => {
+  router.push(`/profile/${userId}`);
+};
 </script>
 
 
@@ -397,6 +407,10 @@ onMounted(async () => {
   margin-right: 30px;
   object-fit: cover;
 }
-
+.nickname{
+  font-weight: bold;
+  font-size: medium;
+  cursor: pointer;
+}
 </style>
 

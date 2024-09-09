@@ -9,7 +9,7 @@
 <script setup lang="ts">
 
 import { useRouter } from 'vue-router';
-import { register, errorMessage } from '@/requestMethod/useUser'; // 导入注册方法
+import { register, errorMessage } from '@/requestMethod/useUser'; 
 import bg1 from '@/assets/background.png';
 
 const router = useRouter();
@@ -19,7 +19,7 @@ const handleSubmit = async (data?: any) => {
   const isSuccess = await register(data);
 
   if (isSuccess) {
-    router.replace('/login'); // 注册成功后跳转到登录页面
+    router.replace('/login'); 
   }
 };
 </script>

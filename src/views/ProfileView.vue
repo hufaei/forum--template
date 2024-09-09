@@ -14,7 +14,9 @@
               <p v-if="isCurrentUser">邮箱：{{ displayUser.email }}</p>
               <div v-if="!isCurrentUser" style="display: flex; flex-direction: row; justify-content: space-evenly;">
                 <el-button type="primary" @click="sendMessage(displayUser)">发送消息</el-button>
-                <el-button type="success">关注</el-button>
+                <el-button size="small" @click="toggleothorfollow(Number(route.params.userId))">
+                {{ isMutual ? '互相关注' : '已关注' }}
+              </el-button>
               </div>
             </div>
           </div>
@@ -39,7 +41,16 @@
                   </div>
                 </template>
                 <div class="game-content">{{ topic.content }}</div>
-                <el-image v-if="topic.image" :src="topic.image" class="game-image" />
+                <div v-if="topicImages(topic.image).length > 0" class="image-gallery">
+                  <el-image
+                    v-for="(image, index) in topicImages(topic.image)"
+                    :key="index"
+                    :src="image"
+                    fit="cover"
+                    lazy
+                    class="topic-image"
+                  />
+                </div>
                 <div class="game-footer">
                   <span class="game-time">{{ formatDate(topic.createdAt) }}</span>
                   <mi-link path="http://localhost:5173/main/section" target="_self">
@@ -47,8 +58,15 @@
                   </mi-link>
                   <div></div>
                   <div class="game-icons">
-                    <span class="game-icon">点赞</span>
-                    <span class="game-icon">评论</span>
+                    
+                    <router-link :to="`/main/topic/${topic.id}`">
+                      <img src="@/assets/point-re.png" class="game-icon" alt="点赞">
+                    </router-link>
+
+                    <router-link :to="`/main/topic/${topic.id}`">
+                      <img src="@/assets/comment.png" class="game-icon" alt="评论">
+                    </router-link>
+                    
                   </div>
                 </div>
               </el-card>
@@ -89,11 +107,11 @@
   import { fetchTopicsByUserId } from '@/requestMethod/useTopics';
   import { useOtherUserStore } from '@/stores/otherUserStore';
   import { useUserStore } from '@/stores/userStore';
-  import { deleteTopic } from '@/requestMethod/useTopics'; // 引入删除话题的方法
+  import { deleteTopic } from '@/requestMethod/useTopics';
   import { ElMessage, ElMessageBox } from 'element-plus';
   import deleteIcon from '@/assets/delete.png';
   import deleteIconHover from '@/assets/delete-a.png';
-  // 为每个话题维护悬停状态
+
   const hoverIndex = ref<number | null>(null);
   interface User {
     id: number;
@@ -135,7 +153,6 @@
   })
     .then(async () => {
       try {
-        // 调用删除接口
         const result = await deleteTopic(topicId);
         if (result) {
           // 只有在删除成功时才重新加载话题列表
@@ -169,10 +186,6 @@
     return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'numeric', day: 'numeric' });
   });
   
-  const goToUserProfile = (userId: number) => {
-    router.push({ name: 'profile', params: { userId: userId } });
-  };
-  
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
@@ -195,8 +208,16 @@
       await getFollows(displayUser.value.id);
     }
   };
+  let isMutual=ref<boolean>(true);
+  const toggleothorfollow = async(id:any)=>{
+    const success = await toggle(userStore.user.id, id);
+    if (success) {
+      isMutual.value = !isMutual.value;
+    }
+  };
   
   onMounted(async () => {
+    isMutual.value = await checkMutualFollow(userStore.user.id,Number(route.params.userId) );
     const userId = Number(route.params.userId) || userStore.user.id;
     const userData = userId === userStore.user.id ? userStore.user : await getUserVo(userId);
   
@@ -226,7 +247,7 @@
       }
   
       await getFollows(userId);
-      console.log(followsList)
+
       if (followsList.value) {
         displayUser.value.follows = await Promise.all(followsList.value.map(async (follower: any) => {
           const isMutual = await checkMutualFollow(userId, follower.followeeId);
@@ -240,14 +261,15 @@
       }
     }
   });
+  const topicImages = (imageStr: string | null): string[] => {
+  return imageStr ? imageStr.split(',') : [];
+};
   </script>
   
   
   <style scoped>
   body {
     font-family: Arial, sans-serif;
-    background-color: #f38e66; /* 日暮色背景 */
-    color: #ecf0f1;
     margin: 0;
     height: 100vh;
   }
@@ -360,6 +382,8 @@
   }
   
   .game-icon {
+    width: 25px;
+    height: 25px;
     cursor: pointer;
   }
   
@@ -396,5 +420,20 @@
     margin-left: 400px;
     width: 25px;
     height: 25px;
+  }
+  .image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 10px;
+  }
+  
+  .topic-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    object-fit: cover;
   }
   </style>

@@ -1,6 +1,6 @@
 <template>
   <el-form :model="user" class="custom-form">
-    <el-form-item label-width="80px" style="" label="昵称">
+    <el-form-item label-width="80px" label="昵称">
       <el-input 
         clearable
         v-model="formData.nickname" />
@@ -42,7 +42,7 @@ const submit = async () => {
 .custom-form {
   max-width: 80%;
   margin: 0 auto;
-  background-color: #00000080; /* 黑色透明背景 */
+  background-color: #00000080; 
   padding: 20px;
   border-radius: 10px;
 }

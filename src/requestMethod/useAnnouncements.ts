@@ -7,8 +7,6 @@ const { $request } = useRequest();
 
 const announcements =  ref<Announcement[]>([]);
 const errorMessage = ref<string | null>(null);
-const currentPage = ref(1);
-const pageSize = ref(3);
 const total = ref(0);
 const searchText = ref('');
 const sortField = ref('updatedAt');
@@ -19,8 +17,8 @@ const fetchAnnouncements = async () => {
     const response: ResponseData = await $request.post(
       'http://localhost:8080/announcements/list/page',
       {
-        current: currentPage.value,
-        pageSize: pageSize.value,
+        current: null,
+        pageSize: null,
         id: null,
         searchText: searchText.value,
         sortField: sortField.value,

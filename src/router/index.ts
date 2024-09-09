@@ -5,7 +5,7 @@ const SectionView = () => import('@/views/SectionView.vue')
 const MainView = () => import('@/views/MainView.vue')
 const TopicView = () => import('@/views/TopicView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
-const EditProfileView = () => import('@/views/testView.vue') // 保持不变
+const EditProfileView = () => import('@/views/testView.vue') 
 const RegisterView = () => import('@/views/RegisterView.vue')
 const LoginView = () => import('@/views/LoginView.vue')
 const HomeView = () => import('@/views/HomeView.vue')

@@ -1,6 +1,5 @@
 <template>
   <div class="fixed-icons">
-    <!-- 悬停时显示通知窗口 -->
     <div class="icon-container" @mouseover="setActiveIcon('announce')" @mouseleave="setActiveIcon('')">
       <el-image 
         :src="activeIcon === 'announce' ? announceActive : announce" 
@@ -23,7 +22,6 @@
       </el-card>
     </div>
 
-    <!-- 弹出反馈窗口 -->
     <div class="icon-container" @mouseover="setActiveIcon('feedback')" @mouseleave="setActiveIcon('')">
       <el-image 
         :src="activeIcon === 'feedback' ? feedbackActive : feedback" 
@@ -73,7 +71,6 @@
 import { createVNode } from 'vue';
 import { ref, onMounted } from 'vue';
 
-// 导入图标
 import announce from '@/assets/announce.png';
 import announceActive from '@/assets/announce-a.png';
 import gotop from '@/assets/gotop.png';
@@ -83,31 +80,27 @@ import feedbackActive from '@/assets/feedback-a.png';
 import { fetchAnnouncements, announcements } from '@/requestMethod/useAnnouncements';
 
 // 定义状态
-const activeIcon = ref<string>(''); // 控制哪个图标被激活
-const showFeedbackModal = ref<boolean>(false); // 控制反馈弹窗显示状态
-const feedbackContent = ref<string>(''); // 反馈内容
+const activeIcon = ref<string>(''); 
+const showFeedbackModal = ref<boolean>(false); 
+const feedbackContent = ref<string>(''); 
 
 // 设置当前激活的图标
 const setActiveIcon = (iconName: string): void => {
   activeIcon.value = iconName;
 };
 
-// 打开反馈弹窗
+// 反馈弹窗
 const getdialog = (): void => {
   showFeedbackModal.value = true;
 };
-
-// 提交反馈
 const submitFeedback = (): void => {
   console.log('提交反馈:', feedbackContent.value);
   showFeedbackModal.value = false;
   alert('反馈已提交！');
 };
 
-// 在组件挂载时加载通知数据
 onMounted(async () => {
   await fetchAnnouncements();
-  console.log(announcements);
 });
 </script>
 

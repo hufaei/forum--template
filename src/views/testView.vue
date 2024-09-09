@@ -14,9 +14,7 @@
           <el-menu-item index="3">隐私</el-menu-item>
         </el-menu>
       </div>
-        
-  
-      <!-- 主体内容 -->
+
       <el-container>
         <el-header>
           <div class="left">
@@ -25,16 +23,6 @@
               <el-breadcrumb-item>个人中心</el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <!-- <div class="right">
-            <el-input placeholder="搜索" class="input-with-select">
-              <template v-slot:prepend>
-<el-select  placeholder="搜索">
-                <el-option label="用户" value="user"></el-option>
-                <el-option label="内容" value="content"></el-option>
-              </el-select>
-</template>
-            </el-input>
-          </div> -->
         </el-header>
 
         <div class="main-content">
@@ -50,17 +38,16 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed, defineComponent, markRaw } from 'vue';
+  import { ref, computed, markRaw } from 'vue';
   import { useUserStore } from '@/stores/userStore';
   import UserProfileForm from '@/components/form/UserProfileForm.vue';
   import AvatarEditForm from '@/components/form/AvatarEditForm.vue';
   import PrivacySettingsForm from '@/components/form/PrivacySettingsForm.vue';
-  
-  // 用户数据
+
   const userStore = useUserStore();
   const user = computed(() => userStore.user);
   
-  // markRaw标记一个对象为非响应式，这样Vue就不会跟踪这个对象的变化
+  // markRaw--Vue就不会跟踪这个对象的变化
   const components = {
     UserProfileForm: markRaw(UserProfileForm),
     AvatarEditForm: markRaw(AvatarEditForm),

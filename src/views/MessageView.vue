@@ -65,16 +65,16 @@ watch(() => route.name, (newVal) => {
 
 /* 调整左侧导航栏样式 */
 .etab {
-  background-color: rgba(255, 255, 255, 0.5); /* 半透明白色 */
-  width: 100%; /* 调整宽度 */
+  background-color: rgba(255, 255, 255, 0.5); 
+  width: 100%; 
   height: 100%;
-  border-radius: 8px; /* 边框圆角 */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* 添加阴影 */
+  border-radius: 8px; 
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
 }
 
-/* 自定义标签内容的样式 */
+
 .el-tabs__item {
-  color: #ffffff; /* 设置文字颜色 */
+  color: #ffffff; 
 }
 
 .main-content {

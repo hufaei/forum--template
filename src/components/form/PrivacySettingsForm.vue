@@ -1,9 +1,7 @@
 <template>
   <div class="account-info-container">
-    <!-- 标题 -->
     <mi-title title="个人信息"/>
 
-    <!-- 第一行：账号和邮箱 -->
     <div class="user-info">
       <div><strong>账号：</strong>{{ user.username }}</div>
       <div>
@@ -12,7 +10,6 @@
       </div>
     </div>
 
-    <!-- 第二行：操作按钮 -->
     <div class="action-buttons">
       <button @click="confirmLogout" class="button logout-button">注销账号</button>
       <router-link to="/reset-password" class="button forgot-password-link">
@@ -20,7 +17,6 @@
       </router-link>
     </div>
 
-    <!-- 弹出框：el-dialog -->
     <el-dialog 
       title="确认注销" 
       v-model=showConfirmDialog
@@ -60,12 +56,11 @@ const logout = () => {
 };
 
 const modifyEmail = () => {
-  // 修改邮箱的逻辑
   ElMessageBox.prompt('请输入新的邮箱地址', '修改邮箱', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',
   }).then(({ value }) => {
-    // 在这里可以处理邮箱修改逻辑
+    // todo-在这里可以处理邮箱修改逻辑
     ElMessageBox.alert(`邮箱已修改为：${value}`, '提示');
   }).catch(() => {
     ElMessageBox.alert('取消了邮箱修改', '提示');
@@ -77,13 +72,13 @@ const modifyEmail = () => {
 .account-info-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 左对齐 */
+  align-items: flex-start; 
   padding-left: 5%; 
   justify-content: start;
   margin: 10%;
-  height: 50vh; /* 设置容器高度 */
-  gap: 20px; /* 行间距 */
-  background-color: #00000080; /* 黑色透明背景 */
+  height: 50vh; 
+  gap: 20px; 
+  background-color: #00000080;
   border-radius: 15px;
 }
 
@@ -93,12 +88,12 @@ const modifyEmail = () => {
   color: white;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 账号和邮箱之间的间距 */
+  gap: 10px;
 }
 
 .user-info div {
   display: flex;
-  align-items: center; /* 上下对齐 */
+  align-items: center; 
 }
 
 .modify-email-button {
@@ -117,23 +112,23 @@ const modifyEmail = () => {
 
 .action-buttons {
   display: flex;
-  gap: 20px; /* 按钮之间的间距 */
+  gap: 20px;
 }
 
 .button {
   margin-left: 15px;
-  background-color: #ffffff00; /* 透明背景 */
+  background-color: #ffffff00; 
   color: #fff;
   width: 8.5em;
   height: 2.9em;
-  border: #414141 0.2em solid; /* 边框颜色 */
+  border: #414141 0.2em solid; 
   border-radius: 11px;
   text-align: center;
   transition: all 0.6s ease;
 }
 
 .button:hover {
-  background-color: #b4f5fd; /* 悬停时背景变为蓝色 */
+  background-color: #b4f5fd; 
   cursor: pointer;
 }
 

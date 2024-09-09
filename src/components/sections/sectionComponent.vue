@@ -21,6 +21,7 @@
       infinite-scroll-distance="10"
       class="content"
     >
+    <el-divider content-position="left">默认优先展示最新的话题</el-divider>
       <el-card
         shadow="hover"
         v-for="topic in topics"
@@ -63,9 +64,7 @@
       </el-card>
       <p v-if="loading">Loading...</p>
     </div>
-
-
-    <!-- 固定的右侧区域，使用 el-card -->
+    
     <el-card class="otherview" shadow="hover">
       <p>这里是右侧固定的内容。</p>
     </el-card>
@@ -117,15 +116,12 @@ const loadTopics = async (sectionId: number) => {
       return;
     }
 
-    // 去除重复话题
+    // 去重
     const existingTopicIds = new Set(topics.value.map(topic => topic.id));
     const uniqueData = data.filter((topic:any) => !existingTopicIds.has(topic.id));
-
-    // 将新话题追加到话题列表中
     topics.value.push(...uniqueData);
     offset += 1;
 
-    // 为每个话题的 userId 获取用户信息
     for (const topic of uniqueData) {
       if (!userMap.value[topic.userId]) {
         const userInfo = await getUserVo(topic.userId);
@@ -143,12 +139,8 @@ const loadTopics = async (sectionId: number) => {
 };
 
 const loadMoreTopics = () => {
-  console.log("话题页数：",offset)
   if (!loading.value && hasMore.value) {
-    console.log("话题页数：",offset)
     loadTopics(activeTab.value);
-  }else{
-    console.log("话题页数：",offset)
   }
 };
 
@@ -195,7 +187,6 @@ onMounted(() => {
   color: white;
 }
 
-/* 修改 .sidebar-item 样式 */
 .sidebar-item {
   margin-bottom: 15px;
   padding: 10px; 
@@ -241,8 +232,6 @@ onMounted(() => {
 .topic-card {
   margin-bottom: 20px;
 }
-
-/* 话题头部 */
 .topic-header {
   display: flex;
   justify-content: space-between;

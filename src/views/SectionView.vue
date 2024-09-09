@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import SectionComponent from '@/components/sections/SectionComponent.vue'; // 根据你的实际路径调整导入路径
+import SectionComponent from '@/components/sections/SectionComponent.vue'; 
 </script>
 
 <style scoped>

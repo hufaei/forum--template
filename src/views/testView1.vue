@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <mi-title title="编辑话题" />
-    <el-tabs v-model="activeTab" class="tabs-container">
+    <el-tabs v-model="activeTab" class="tabs-container" @tab-click="handleTabClick">
       <el-tab-pane label="编辑" name="edit">
         <div class="edit-section">
           <el-input
@@ -52,8 +52,28 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="草稿箱" name="drafts">
-        <div v-if="drafts.length === 0" class="no-drafts">
-          功能未开发
+        <div v-if="draft.content" class="draft-container">
+          <el-card style="width: 100%;">
+            <template v-slot:header>
+              <mi-link path="http://localhost:5173/main/section" target="_self">
+                {{ getSectionName(draft.sectionId) }}
+              </mi-link>
+            </template>
+            <div class="draft-content">
+              <p style="text-align: left;padding-left:8%;padding-right:8%">{{ draft.content }}</p>
+              <div class="draft-images">
+                <img v-for="url in draft.imageUrls" :key="url" :src="url" class="draft-image" />
+              </div>
+            </div>
+            <el-divider border-style="dashed">继续编辑将不保留图片</el-divider>
+            <div class="draft-footer">
+              
+              <el-button @click="continueEditing">继续编辑</el-button>
+            </div>
+          </el-card>
+        </div>
+        <div v-else class="no-drafts">
+          暂无草稿
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -65,28 +85,30 @@ import { ref, onMounted, computed } from 'vue';
 import { ElMessage, type UploadFile } from 'element-plus';
 import { useUserStore } from '@/stores/userStore';
 import { fetchSections, type Section } from '@/requestMethod/useSections';
-import { addTopic } from '@/requestMethod/useTopics';
-import { Plus } from '@element-plus/icons-vue'
-import type { UploadProps,UploadInstance } from 'element-plus'
+import { addTopic, saveDraft, getDraft } from '@/requestMethod/useTopics';
+import { Plus } from '@element-plus/icons-vue';
+import type { UploadProps, UploadInstance } from 'element-plus';
 
-const uploadRef = ref<UploadInstance>()
+const uploadRef = ref<UploadInstance>();
 const userStore = useUserStore();
 const userId = userStore.user.id;
 const activeTab = ref('edit');
 const content = ref('');
 const selectedSection = ref<number | null>(null);
 const sections = ref<Section[]>([]);
-const imageUrlList = ref<string[]>([]); // 存储上传成功后图片URL
+const imageUrlList = ref<string[]>([]); 
 const fileList = ref<UploadFile[]>([]);
 
-const drafts = ref<Array<{ content: string; sectionId: number }>>([]);
-
-// 上传时的数据
-const uploadData = computed(() => {
-  return {
-    sectionId: selectedSection.value
-  };
+const draft = ref<{ content: string; imageUrls: string[]; sectionId: any }>({
+  content: '',
+  imageUrls: [],
+  sectionId: 0,
 });
+
+// 上传时的数据  目前问题：草稿箱图片无法保存————但是又不想上传到服务器去。。
+const uploadData = computed(() => ({
+  sectionId: selectedSection.value,
+}));
 
 const beforeUpload = (file: File) => {
   const isImage = file.type.startsWith('image/');
@@ -101,8 +123,7 @@ const handleUploadSuccess: UploadProps['onSuccess'] = (
   file: UploadFile,
   fileList: UploadFile[]
 ) => {
-  imageUrlList.value.push(response.data);  // 确保 response.data 是 URL
-
+  imageUrlList.value.push(response.data);  
 };
 
 const handleUploadError: UploadProps['onError'] = (
@@ -110,9 +131,11 @@ const handleUploadError: UploadProps['onError'] = (
   file: UploadFile,
   fileList: UploadFile[]
 ) => {
-  ElMessage.error('上传失败：',error);
+  ElMessage.error('上传失败：', error);
 };
+
 const submitPublish = async () => {
+  console.log(fileList)
   if (!content.value) {
     ElMessage.error('内容不能为空');
     return;
@@ -124,8 +147,8 @@ const submitPublish = async () => {
 
   try {
     uploadRef.value!.submit();
-    // 轮询等待图片先上传成功
-    await new Promise((resolve, reject) => {
+
+    await new Promise((resolve) => {
       const checkImagesLoaded = setInterval(() => {
         if (imageUrlList.value.length === fileList.value.length) {
           clearInterval(checkImagesLoaded);
@@ -134,12 +157,12 @@ const submitPublish = async () => {
       }, 1000);
     });
 
-    // 发送添加话题的请求
+    // 添加话题
     await addTopic({
       content: content.value,
       image: imageUrlList.value, 
       sectionId: selectedSection.value,
-      userId: userId
+      userId: userId,
     });
 
     ElMessage.success('发布成功');
@@ -147,9 +170,6 @@ const submitPublish = async () => {
   } catch (error) {
     ElMessage.error('发布失败，请重试。');
   }
-};
-const submitDraft = () => {
-  ElMessage.info('存入草稿功能暂未实现');
 };
 
 const clearInputs = () => {
@@ -159,8 +179,9 @@ const clearInputs = () => {
   imageUrlList.value = [];
 };
 
-onMounted(() => {
+onMounted(async () => {
   fetchSectionsData();
+  await loadDraft();
 });
 
 const fetchSectionsData = async () => {
@@ -171,8 +192,104 @@ const fetchSectionsData = async () => {
     ElMessage.error('获取板块列表失败，请重试。');
   }
 };
-</script>
 
+const getSectionName = (sectionId: number | null) => {
+  const section = sections.value.find((section) => section.id === sectionId);
+  return section ? section.name : '未知板块';
+};
+
+// 点击草稿箱标签时，加载草稿数据
+const handleTabClick = async (tab: any) => {
+  if (tab.name === 'drafts') {
+    await loadDraft();
+  }
+};
+
+// 加载草稿数据，但不自动加载到编辑器
+const loadDraft = async () => {
+  try {
+    const response = await getDraft(); // 调用接口获取草稿数据
+    draft.value = response;
+  } catch (error) {
+    ElMessage.error('草稿加载失败，请重试。');
+    console.error('Error loading draft:', error);
+  }
+};
+// const submitDraft = async () => {
+//   try {
+//     draft.value = {
+//       content: content.value,
+//       sectionId: selectedSection.value,
+//       imageUrls: fileList.value.map(file => file.url || '') // 从 fileList 提取图片的 URL，确保 URL 存在
+//     };
+
+//     // 2. 打印草稿数据以便调试
+//     console.log(draft.value);
+
+//     // 3. 调用 API 保存草稿
+//     await saveDraft(draft.value);
+
+//     // 4. 显示成功消息
+//     ElMessage.success('草稿已保存');
+//   } catch (error) {
+//     // 5. 如果保存草稿失败，显示错误消息
+//     ElMessage.error('草稿保存失败，请重试。');
+//     console.error('Error saving draft:', error);
+//   }
+// };
+// // 用户点击“继续编辑”按钮时，将草稿内容加载到编辑页面
+// const continueEditing = () => {
+//   content.value = draft.value.content;
+//   selectedSection.value = draft.value.sectionId;
+//   fileList.value = draft.value.imageUrls.map((url, index) => ({
+//     name: '', // 如果没有文件名，可以设置为空
+//     url: url,
+//     status: 'success', // 设置状态为成功，以便图片可以正常展示
+//     uid: Date.now() + index, // 为每个文件生成唯一的 uid
+//   }));
+//   activeTab.value = 'edit'; // 切换回编辑标签
+//   ElMessage.success('已加载草稿内容');
+// };
+const convertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+const submitDraft = async () => {
+  try {
+    // 转换所有文件为 Base64 编码
+    const base64Promises = fileList.value.map(file => convertToBase64(file.raw as File));
+    const base64List = await Promise.all(base64Promises);
+
+    draft.value = {
+      content: content.value,
+      sectionId: selectedSection.value,
+      imageUrls: base64List // 保存 Base64 编码
+    };
+
+    await saveDraft(draft.value);
+    clearInputs();
+    ElMessage.success('草稿已保存');
+  } catch (error) {
+    ElMessage.error('草稿保存失败，请重试。');
+    console.error('Error saving draft:', error);
+  }
+};
+
+const continueEditing = () => {
+  content.value = draft.value.content;
+  selectedSection.value = draft.value.sectionId;
+  fileList.value = [];
+  
+  activeTab.value = 'edit';
+  ElMessage.success('已加载草稿内容');
+};
+
+</script>
 
 <style scoped>
 .container {
@@ -185,8 +302,8 @@ const fetchSectionsData = async () => {
 
 .tabs-container {
   flex: 1;
-  background-color:#FFFFFF99;
-  padding-top:1%;
+  background-color: #FFFFFF99;
+  padding-top: 1%;
   padding-left: 3%;
   padding-right: 3%;
   margin-top: 20px;
@@ -223,5 +340,45 @@ const fetchSectionsData = async () => {
 .no-drafts {
   text-align: center;
   color: #888;
+}
+
+.draft-container {
+  min-width: 700px;
+  
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.draft-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.draft-images {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 10%;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.draft-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.draft-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.no-drafts {
+  text-align: center;
+  color: #888;
+  margin-top: 50px;
 }
 </style>

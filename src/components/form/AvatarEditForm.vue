@@ -41,7 +41,7 @@ import { useUserStore } from '@/stores/userStore';
 import { ElMessage } from 'element-plus';
 import type { UploadProps } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
-import { uploadAvatar } from '@/requestMethod/useUser'; // 确保路径正确
+import { uploadAvatar } from '@/requestMethod/useUser';
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -51,7 +51,6 @@ const handleAvatarUpload: UploadProps['httpRequest'] = async (options) => {
   const url = await uploadAvatar(file);
 
   if (typeof url === 'string') {
-    // 如果返回值是 string 类型，则更新用户头像
     userStore.updateAvatar(url);
   }
 };
@@ -112,7 +111,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 
 .loader {
   display: flex;
-  transform: translateY(-60px); /* 使用 transform 移动元素 */
+  transform: translateY(-60px); 
   flex-direction: row;
   justify-items: baseline;
   align-items: baseline;

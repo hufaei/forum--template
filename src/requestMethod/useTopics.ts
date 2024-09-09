@@ -81,7 +81,40 @@ const deleteTopic = async (topicId: number) => {
     throw error;
   }
 };
-export { fetchTopics, fetchTopic, fetchTopicsByUserId, addTopic, deleteTopic};
+
+// 添加存储草稿的方法
+const saveDraft = async (data: { content: string; imageUrls: string[]; sectionId: number }) => {
+  try {
+    const response: ResponseData = await $request.post(`http://localhost:8080/drafts/save`, data, rconfig);
+    if (response.ret.code === 200) {
+      ElMessage.success('草稿保存成功');
+      return response.data;
+    } else {
+      ElMessage.error(response.ret.message);
+      throw new Error(response.ret.message);
+    }
+  } catch (error) {
+    ElMessage.error('草稿保存失败，请重试。');
+    throw error;
+  }
+};
+
+// 添加获取草稿的方法
+const getDraft = async () => {
+  try {
+    const response: ResponseData = await $request.get(`http://localhost:8080/drafts/get`, {}, rconfig);
+    if (response.ret.code === 200) {
+      return response.data;  // 返回草稿内容，包含 content, imageUrls, sectionId
+    } else {
+      ElMessage.error(response.ret.message);
+      throw new Error(response.ret.message);
+    }
+  } catch (error) {
+    ElMessage.error('获取草稿失败，请重试。');
+    throw error;
+  }
+};
+export { fetchTopics, fetchTopic, fetchTopicsByUserId, addTopic, deleteTopic,getDraft,saveDraft};
 
 export interface Topic {
   id: number;

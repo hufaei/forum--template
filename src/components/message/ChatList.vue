@@ -53,10 +53,9 @@ const goEasy = inject('goEasy') as any;
 const conversations = ref<Array<any>>([]); 
 const hoveredCard = ref<number | null>(null); 
 
-// 监听会话列表更新事件
 async function onConversationsUpdated(result: any) {
   if (result && result.content && Array.isArray(result.content.conversations)) {
-    conversations.value = result.content.conversations; // 直接存储返回的 conversation 对象
+    conversations.value = result.content.conversations; 
   } else {
     console.error('Result content is undefined or not an array:', result);
   }
@@ -86,7 +85,7 @@ async function loadConversations() {
 }
 
 function openChat(userId: string) {
-  markConversationAsRead(userId); // 标记会话为已读
+  markConversationAsRead(userId); 
   router.push({ name: 'ChatRoom', params: { id: userId } });
 }
 
@@ -115,7 +114,7 @@ async function markConversationAsRead(userId: string) {
 async function deleteConversation(conversation: any) {
   try {
     await goEasy.im.removeConversation({
-      conversation: conversation, // 直接传递 conversation 对象
+      conversation: conversation, 
       onSuccess: () => {
         conversations.value = conversations.value.filter(conv => conv !== conversation);
         console.log('Conversation deleted successfully');
@@ -207,23 +206,22 @@ async function deleteConversation(conversation: any) {
   font-size: 12px;
 }
 
-/* 删除按钮容器 */
 .delete-icon-container {
   position: relative;
   right: 0;
-  height: 100%; /* 占据卡片的整个高度 */
-  width: 35px; /* 比图片略大 */
+  height: 100%; 
+  width: 35px; 
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.8s, opacity 0.3s;
   opacity: 0;
-  transform: translateX(20px); /* 初始位置 */
+  transform: translateX(20px); 
 }
 
 .user-card:hover .delete-icon-container {
-  transform: translateX(0); /* 平滑进入 */
+  transform: translateX(0);
   opacity: 1;
 }
 

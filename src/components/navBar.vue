@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, onMounted, watch } from 'vue';
+import { ref, inject, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/userStore';
@@ -77,8 +77,8 @@ import { logoutUser } from '@/requestMethod/useUser'; // 引入登出方法
 
 
 const router = useRouter();
-const userStore = useUserStore();
-const isLoggedIn = ref(!!userStore.user); // 根据是否存在 token 判断用户是否已登录
+let userStore = useUserStore();
+const isLoggedIn = ref<boolean>(false); // 根据是否存在 token 判断用户是否已登录
 const activeIndex = ref('home');
 const unreadTotal = ref(0);
 let user = userStore.user;
@@ -122,14 +122,27 @@ watch(isConnected, (newValue) => {
 
 // 初始检查
 onMounted(() => {
-  user = userStore.user;
+  const hasReloaded = sessionStorage.getItem('hasReloaded');
 
+  // 如果没有刷新过，进行刷新并设置标记
+  if (hasReloaded !== 'true') {
+    sessionStorage.setItem('hasReloaded', 'true');
+    window.location.reload();
+  } 
+
+  if (user && user.id) {
+    isLoggedIn.value = true;
+  } else {
+    isLoggedIn.value = false;
+  }
+
+  
   if (isConnected) {
     fetchUnreadMessages();
-  //   //监听会话列表更新
-  // goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
+    // //监听会话列表更新
+    // goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
   }
-});
+});   
 
 const handleCommand = (command: string) => {
   const userId = user.id; // 获取当前用户 ID
@@ -178,6 +191,11 @@ const handleChatClick = () => {
     router.push({ name: 'chat' });
   }
 };
+
+onBeforeUnmount(() => {
+  // 当组件取消挂载时，重置 `hasReloaded` 标志
+  sessionStorage.setItem('hasReloaded', 'false'); // 或者使用 sessionStorage.removeItem('hasReloaded');
+});
 </script>
 
 <style scoped>
