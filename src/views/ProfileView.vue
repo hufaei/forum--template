@@ -1,7 +1,6 @@
 <template>
     <el-container id="uservo">
-      <el-main class="main-content">
-        <div style="display: flex; flex-direction: column; width:60%">
+        <div style="padding: 20px; background-color: #f4f5f7;display: flex; flex-direction: column; width:80%;height:100%">
           <div class="header">
             <el-image :src="displayUser.avatar" alt="Avatar" class="avatar" shape="square" />
             <div class="profile-info">
@@ -20,7 +19,7 @@
               </div>
             </div>
           </div>
-          <div style="display: flex; direction: column;">
+          <div style="display: flex; direction: column;height:70%">
             <div class="followers-showcase">
               <mi-title :title="isCurrentUser ? '我的动态：' : '他的动态：'" color="#ff5722" :margin="{ top: 24, bottom: 24 }" />
               <el-card class="showcase-item" v-for="(topic, index) in displayUser.topics" :key="topic.id">
@@ -74,28 +73,27 @@
             </div>
           </div>
         </div>
-        <div class="friendscard">
-          <h3>{{ isCurrentUser ? '我的关注' : '他的关注' }}</h3>
-          <el-row justify="space-evenly" class="showfollow" v-for="friend in displayUser.follows" :key="friend.id">
-            <el-col :span="12">
-              <router-link :to="`/profile/${friend.id}`">
-                <el-avatar 
-                  shape="square" 
-                  :size="50" 
-                  :src="friend.avatar"
-                ></el-avatar>
-              </router-link>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ friend.nickname }}</div>
-              <el-button v-if="isCurrentUser" size="small" @click="toggleFollow(friend)">
-                {{ friend.isMutual ? '互相关注' : '已关注' }}
-              </el-button>
-            </el-col>
-          </el-row>
-        </div>
-        
-      </el-main>
+
+      <div class="friendscard">
+        <h3>{{ isCurrentUser ? '我的关注' : '他的关注' }}</h3>
+        <el-row justify="space-evenly" class="showfollow" v-for="friend in displayUser.follows" :key="friend.id">
+          <el-col :span="12">
+            <router-link :to="`/profile/${friend.id}`">
+              <el-avatar 
+                shape="square" 
+                :size="50" 
+                :src="friend.avatar"
+              ></el-avatar>
+            </router-link>
+          </el-col>
+          <el-col :span="12">
+            <div>{{ friend.nickname }}</div>
+            <el-button v-if="isCurrentUser" size="small" @click="toggleFollow(friend)">
+              {{ friend.isMutual ? '互相关注' : '已关注' }}
+            </el-button>
+          </el-col>
+        </el-row>
+      </div>
     </el-container>
   </template>
   
@@ -272,40 +270,27 @@
     font-family: Arial, sans-serif;
     margin: 0;
     height: 100vh;
+    background: #f4f5f7;
   }
   
   #uservo {
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: 100vh;
-    background-color: #4d6970;
-  }
-  
-  .sidebar {
-    background-color: #34495e;
-  }
-  
-  .el-menu-vertical-demo {
-    border-right: none;
-  }
-  
-  .main-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    padding: 20px;
-    overflow-y: auto;
-    height: 100vh;
+    background-color: #f4f5f7;
   }
   
   .header {
+    margin-left: 10px;
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-    width: 100%;
-    background-color: #c0e920;
+    height: 30vh;
+    width: 80%;
+    background-color: #ffffff; /* 修改header背景色为白色 */
     justify-content: space-around;
+    border-radius: 10px; /* 设置边框圆滑 */
+    border: 1px solid #ddd; /* 可选：增加边框颜色 */
   }
   
   .avatar {
@@ -313,6 +298,46 @@
     height: 100px;
     margin-right: 20px;
     margin: 10px;
+  }
+  
+  .friendscard {
+    width: 30%;
+    background-color: #ffffff; 
+    min-height: 85%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed; /* 固定位置 */
+    right: 3%;
+    top: 10%;
+    border-radius: 10px; 
+    border: 1px solid #ddd; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+  }
+  
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    height: 100vh;
+    background-color: #f4f5f7; /* 修改content部分背景色为白色 */
+  }
+  
+  .showfollow {
+    background-color: #ffffff; /* 修改showfollow背景色为白色 */
+    width: 90%;
+    height: 15%;
+    margin: 10px;
+    align-items: center;
+    border-radius: 10px; /* 设置边框圆滑 */
+    border: 1px solid #ddd; /* 可选：增加边框颜色 */
+  }
+  
+  .el-menu-vertical-demo {
+    border-right: none;
   }
   
   .profile-info {
@@ -337,7 +362,7 @@
   .summary,
   .recent-activity,
   .followers-showcase {
-    width: 100%;
+    width: 80%;
     margin: 20px;
   }
   
@@ -387,40 +412,26 @@
     cursor: pointer;
   }
   
-  .friendscard {
-    width: 30%;
-    background-color: #ecf0f1;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .showfollow {
-    background-color: brown;
-    width: 90%;
-    height: 15%;
-    margin: 10px;
-    align-items: center;
-  }
-  
   .clearfix {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
   }
+  
   .delete-icon {
     cursor: pointer;
     transition: transform 0.3s ease, filter 0.3s ease;
     width: 100%;
     height: 100%;
   }
-  .d-icon{
+  
+  .d-icon {
     margin-left: 400px;
     width: 25px;
     height: 25px;
   }
+  
   .image-gallery {
     display: flex;
     flex-wrap: wrap;
@@ -436,4 +447,5 @@
     margin-bottom: 10px;
     object-fit: cover;
   }
+  
   </style>

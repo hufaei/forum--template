@@ -30,7 +30,7 @@ const fetchTopic = async (topicId: number) => {
       throw new Error(response.ret.message);
     }
   } catch (error) {
-    ElMessage.error('获取话题列表失败，请重试。');
+    ElMessage.error('获取话题失败，请重试。');
     throw error;
   }
 };
@@ -114,7 +114,24 @@ const getDraft = async () => {
     throw error;
   }
 };
-export { fetchTopics, fetchTopic, fetchTopicsByUserId, addTopic, deleteTopic,getDraft,saveDraft};
+// 添加获取草稿的方法
+const thumb = async (topicId: number) => {
+  try {
+    const response: ResponseData = await $request.get(`http://localhost:8080/topics/thumb/${topicId}`, {}, rconfig);
+    if (response.ret.code === 200) {
+      return response.data;  // 返回草稿内容，包含 content, imageUrls, sectionId
+    } else {
+      ElMessage.error(response.ret.message);
+      throw new Error(response.ret.message);
+    }
+  } catch (error) {
+    ElMessage.error('获取草稿失败，请重试。');
+    throw error;
+  }
+};
+
+
+export { fetchTopics, fetchTopic,thumb, fetchTopicsByUserId, addTopic, deleteTopic,getDraft,saveDraft};
 
 export interface Topic {
   id: number;

@@ -24,7 +24,7 @@
       center>
       <span>确定要注销账号吗？</span>
       <template #footer>
-        <button @click="logout" class="confirm-button">确定</button>
+        <button @click="destroyAccount" class="confirm-button">确定</button>
         <button @click="cancelLogout" class="cancel-button">取消</button>
       </template>
     </el-dialog>
@@ -34,6 +34,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useUserStore } from '@/stores/userStore';
+import { destroy } from "@/requestMethod/useUser";
 import { ElMessageBox } from 'element-plus';
 
 const userStore = useUserStore();
@@ -49,11 +50,19 @@ const cancelLogout = () => {
   showConfirmDialog.value = false;
 };
 
-const logout = () => {
-  // 这里可以调用注销账号的逻辑
-  ElMessageBox.alert('账号已注销', '提示');
-  showConfirmDialog.value = false;
+const destroyAccount = async () => {
+  if (await destroy()) {
+    
+    // 延迟三秒后刷新页面
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000); // 3000 毫秒 = 3 秒
+    await ElMessageBox.alert('账号已注销。页面将在三秒后自动刷新。', '提示');
+    showConfirmDialog.value = false;
+
+  }
 };
+
 
 const modifyEmail = () => {
   ElMessageBox.prompt('请输入新的邮箱地址', '修改邮箱', {
@@ -76,7 +85,7 @@ const modifyEmail = () => {
   padding-left: 5%; 
   justify-content: start;
   margin: 10%;
-  height: 50vh; 
+  min-height: 50vh; 
   gap: 20px; 
   background-color: #00000080;
   border-radius: 15px;

@@ -215,41 +215,7 @@ const loadDraft = async () => {
     console.error('Error loading draft:', error);
   }
 };
-// const submitDraft = async () => {
-//   try {
-//     draft.value = {
-//       content: content.value,
-//       sectionId: selectedSection.value,
-//       imageUrls: fileList.value.map(file => file.url || '') // 从 fileList 提取图片的 URL，确保 URL 存在
-//     };
 
-//     // 2. 打印草稿数据以便调试
-//     console.log(draft.value);
-
-//     // 3. 调用 API 保存草稿
-//     await saveDraft(draft.value);
-
-//     // 4. 显示成功消息
-//     ElMessage.success('草稿已保存');
-//   } catch (error) {
-//     // 5. 如果保存草稿失败，显示错误消息
-//     ElMessage.error('草稿保存失败，请重试。');
-//     console.error('Error saving draft:', error);
-//   }
-// };
-// // 用户点击“继续编辑”按钮时，将草稿内容加载到编辑页面
-// const continueEditing = () => {
-//   content.value = draft.value.content;
-//   selectedSection.value = draft.value.sectionId;
-//   fileList.value = draft.value.imageUrls.map((url, index) => ({
-//     name: '', // 如果没有文件名，可以设置为空
-//     url: url,
-//     status: 'success', // 设置状态为成功，以便图片可以正常展示
-//     uid: Date.now() + index, // 为每个文件生成唯一的 uid
-//   }));
-//   activeTab.value = 'edit'; // 切换回编辑标签
-//   ElMessage.success('已加载草稿内容');
-// };
 const convertToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

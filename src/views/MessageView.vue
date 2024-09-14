@@ -12,7 +12,7 @@
           <router-view v-if="activeTab === 'privateChat' && isConnected" />
         </el-tab-pane>
 
-        <el-tab-pane label="我的关注" name="following">
+        <el-tab-pane label="我的通知" name="following">
           <router-view v-if="activeTab === 'following' && isConnected" />
         </el-tab-pane>
         
@@ -37,9 +37,14 @@ function handleTabClick(tab: any) {
   activeTab.value = tab.paneName;
 
   // 保留功能未开发提示
-  if (tab.paneName === 'following' || tab.paneName === 'receivedLikes') {
-    alert('功能未开发');
-  } else {
+  if (tab.paneName === 'receivedLikes') {
+    console.log('功能未开发');
+    router.push({ name: 'ReceivedLikes' });
+  }
+  if(tab.paneName === 'following'){
+    router.push({ name: 'Following' });
+  }
+  if(tab.paneName === 'privateChat') {
     // 导航到 ChatList 只在选择私聊时执行
     router.push({ name: 'ChatList' });
   }

@@ -89,9 +89,21 @@ const getUserVo = async (userId: number) => {
   }
 
 };
+const getTopUsers = async () => {
+  try{
+    const response: ResponseData = await $request.get(`http://localhost:8080/users/top-users`, {}, rconfig);
+    if(response.ret.code == 200){
+      return response.data;
+    }
+  }catch(error){
+    console.error('get user-information failed:', error);
+    errorMessage.value = '获取用户信息失败';
+    ElMessage.error('获取用户信息失败');
+  }
 
+};
 
-// 新增登出方法
+// 登出方法
 const logoutUser = async () => {
   try {
     const response: ResponseData = await $request.post('http://localhost:8080/users/logout', {}, rconfig);
@@ -109,6 +121,27 @@ const logoutUser = async () => {
     console.error('Logout failed:', error);
     errorMessage.value = '登出失败，请重试。';
     ElMessage.error('登出失败，请重试。');
+    return false;
+  }
+};
+// 注销方法
+const destroy = async () => {
+  try {
+    const response: ResponseData = await $request.post('http://localhost:8080/users/self/delete', {}, rconfig);
+
+    if (response.ret.code === 200 && response.data === true) {
+      userStore.clear(); // 清除本地的用户信息和 token
+      ElMessage.success('注销成功');
+      return true;
+    } else {
+      errorMessage.value = response.ret.message;
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    console.error('destroy failed:', error);
+    errorMessage.value = '请重试。';
+    ElMessage.error('请重试。');
     return false;
   }
 };
@@ -177,4 +210,4 @@ const uploadAvatar = async (file: File) => {
     return false;
   }
 };
-export { getUserVo, updateUser, loginUser, logoutUser,register,uploadAvatar ,errorMessage };
+export { getUserVo, updateUser, getTopUsers,loginUser, destroy,logoutUser,register,uploadAvatar ,errorMessage };

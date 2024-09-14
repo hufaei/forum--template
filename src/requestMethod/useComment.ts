@@ -19,7 +19,21 @@ const fetchComments = async (topicId: number,current: number) => {
     throw error;
   }
 };
-
+const fetchViewCount = async () => {
+  try {
+    const response: ResponseData = await $request.get(`http://localhost:8080/comments/getTopViewCounts`, {}, rconfig);
+    if (response.ret.code === 200) {
+      console.log(response.data)
+      return response.data;
+    } else {
+      ElMessage.error(response.ret.message);
+      throw new Error(response.ret.message);
+    }
+  } catch (error) {
+    ElMessage.error('获取浏览量失败，请重试。');
+    throw error;
+  }
+};
 const submitCommentApi = async (comment: { content: string; topicId: number; userId: number }) => {
   try {
     const response: ResponseData = await $request.post(`http://localhost:8080/comments/add`, comment, rconfig);
@@ -35,7 +49,7 @@ const submitCommentApi = async (comment: { content: string; topicId: number; use
   }
 };
 
-export { fetchComments, submitCommentApi };
+export { fetchComments, submitCommentApi ,fetchViewCount};
 export interface Comment {
   id: number;
   userId: number;

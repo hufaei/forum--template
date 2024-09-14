@@ -139,9 +139,12 @@ onMounted(() => {
   
   if (isConnected) {
     fetchUnreadMessages();
+    
+    
+  }
     // //监听会话列表更新
     // goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
-  }
+  
 });   
 
 const handleCommand = (command: string) => {

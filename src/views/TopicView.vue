@@ -90,7 +90,7 @@ import { ref, reactive, onMounted, computed} from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchComments, submitCommentApi, type Comment } from '@/requestMethod/useComment';
 import { fetchReplies, addReply, type Replies } from '@/requestMethod/useReplies';
-import { fetchTopic } from '@/requestMethod/useTopics'; // 获取话题详情
+import { fetchTopic ,thumb} from '@/requestMethod/useTopics'; // 获取话题详情
 import { getUserVo } from '@/requestMethod/useUser'; // 获取用户信息
 import { ElMessage } from 'element-plus';
 import { ArrowDown } from '@element-plus/icons-vue';
@@ -267,7 +267,8 @@ const toggleLike = () => {
     likeIcon.value === "/src/assets/point-re.png"
       ? "/src/assets/point.png"
       : "/src/assets/point-re.png";
-};
+  thumb(Number(topicId));
+   };
 
 onMounted(async () => {
   await loadTopicDetails(); // 页面挂载时加载话题详情和用户信息

@@ -55,9 +55,23 @@ const connectGoEasy = async () => {
 };
 
 // 在组件挂载时连接 GoEasy
-onMounted(() => {
+onMounted(async () => {
   if (userStore.user) {
-    connectGoEasy();
+    await connectGoEasy();
+    var pubsub = goEasy.pubsub;
+    pubsub.subscribe({
+      channel: "channel_comment",//替换为您自己的channel
+      onMessage: function (message:any) {
+          //收到消息
+          console.log("Channel:" + message.channel + " content:" + message.content);
+      },
+      onSuccess: function () {
+          console.log("Channel订阅成功。");
+      },
+      onFailed: function (error:any) {
+          console.log("Channel订阅失败, 错误编码：" + error.code + " 错误信息：" + error.content)
+      }
+  });
   } else {
     watch(() => userStore.user, (newUser) => {
       if (newUser) {

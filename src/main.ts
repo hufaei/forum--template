@@ -15,7 +15,7 @@ import GoEasy from 'goeasy';
 const goEasy = GoEasy.getInstance({
     host: 'hangzhou.goeasy.io', //应用所在的区域地址: [hangzhou.goeasy.io, 新加坡暂不支持IM，敬请期待]
     appkey: 'BC-3daf9f10c85a43279b82415993224f65', // common key,
-    modules: ['im'],
+    modules: ['pubsub','im'],
 });
 
 // import axios from './utils/axios';
