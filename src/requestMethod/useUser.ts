@@ -91,7 +91,7 @@ const getUserVo = async (userId: number) => {
 };
 const getTopUsers = async () => {
   try{
-    const response: ResponseData = await $request.get(`http://localhost:8080/users/top-users`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/users/topUsers`, {}, rconfig);
     if(response.ret.code == 200){
       return response.data;
     }

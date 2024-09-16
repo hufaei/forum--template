@@ -7,7 +7,7 @@ const rconfig = getRequestConfig()
 
 const fetchComments = async (topicId: number,current: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/comments/get/CommentsVo/${topicId}/${current}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/comments/get/commentsVo/${topicId}/${current}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {

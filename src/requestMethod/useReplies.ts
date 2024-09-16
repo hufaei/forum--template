@@ -8,7 +8,7 @@ const rconfig = getRequestConfig();
 // 获取回复列表
 const fetchReplies = async (commentId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/replies/get/RepliesVo/${commentId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/replies/get/repliesVo/${commentId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {

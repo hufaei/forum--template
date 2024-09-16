@@ -7,7 +7,7 @@ const rconfig = getRequestConfig()
 
 const fetchTopics = async (sectionId: number,current:number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/TopicsVo/${sectionId}/${current}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/topicsVo/${sectionId}/${current}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -21,7 +21,7 @@ const fetchTopics = async (sectionId: number,current:number) => {
 };
 const fetchTopic = async (topicId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/TopicVo/${topicId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/topicVo/${topicId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -36,7 +36,7 @@ const fetchTopic = async (topicId: number) => {
 
 const fetchTopicsByUserId = async (userId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/TopicsVoByUserId/${userId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/topicsVoByUserId/${userId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
