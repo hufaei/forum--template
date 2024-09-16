@@ -9,14 +9,13 @@
       :closable="false"
     >
     </el-alert>
-
     <el-scrollbar class="scrollbar">
-      <el-list v-if="likes.length > 0" class="likes-list">
-        <el-list-item v-for="(like, index) in likes" :key="index" class="list-item">
+      <ul v-if="likes.length > 0" class="likes-list">
+        <li v-for="(like, index) in likes" :key="index" class="list-item">
           <span>{{ like.content }}</span>
-          <span class="like-time">{{formatDate(like.time) }}</span>
-        </el-list-item>
-      </el-list>
+          <span class="like-time">{{ formatDate(like.time) }}</span>
+        </li>
+      </ul>
       <p v-else>目前还没有收到新的赞。</p>
     </el-scrollbar>
   </div>
@@ -49,12 +48,8 @@ onMounted(() => {
     // 查询近三十条历史点赞记录
     pubsub.history({
       channel: 'channel_thumb_' + userStore.user.id, // 替换为用户的点赞通知 channel
-      limit: 30, // 查询近30条历史消息
       onSuccess: function (response: any) {
-        console.log("收到历史点赞消息: " + JSON.stringify(response));
         const historyMessages = response.content.messages;
-
-        // 将历史消息推入 likes 数组
         historyMessages.forEach((msg: any) => {
           likes.value.push({
             content: msg.content,

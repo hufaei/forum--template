@@ -92,7 +92,7 @@ const fetchUnreadMessages = async () => {
       goEasy.im.latestConversations({
         onSuccess: (result: any) => {
           console.log('Fetched unread messages:', result);
-          unreadTotal.value = result.content.unreadTotal; // 假设 result.content 包含 unreadTotal
+          unreadTotal.value = result.content.unreadTotal; // result.content 包含 unreadTotal
         },
         onFailed: (error: any) => {
           console.error('Failed to get the latest conversations, code:', error.code, ' content:', error.content);
@@ -120,11 +120,9 @@ watch(isConnected, (newValue) => {
   }
 });
 
-// 初始检查
+
 onMounted(() => {
   const hasReloaded = sessionStorage.getItem('hasReloaded');
-
-  // 如果没有刷新过，进行刷新并设置标记
   if (hasReloaded !== 'true') {
     sessionStorage.setItem('hasReloaded', 'true');
     window.location.reload();
@@ -137,14 +135,10 @@ onMounted(() => {
   }
 
   
-  if (isConnected) {
+  if (isConnected.value) {
     fetchUnreadMessages();
-    
-    
   }
-    // //监听会话列表更新
-    // goEasy.im.on(goEasy.IM_EVENT.CONVERSATIONS_UPDATED, onConversationsUpdated);
-  
+
 });   
 
 const handleCommand = (command: string) => {

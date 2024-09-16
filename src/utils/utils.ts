@@ -50,7 +50,7 @@ export function formateTime(time: number): string {
     } else if (minC >= 1) {
         return `${Math.floor(minC)}分钟`;
     } else if (secondC >= 1) {
-        return `${Math.floor(secondC)}秒`;
+        return `刚刚`;
     } else {
         return '0秒';
     }

@@ -59,7 +59,9 @@
                   <div class="game-icons">
                     
                     <router-link :to="`/main/topic/${topic.id}`">
-                      <img src="@/assets/point-re.png" class="game-icon" alt="点赞">
+                      <div><img src="@/assets/point-re.png" class="game-icon" alt="点赞">
+                      <span>{{ topic?.thumbs }}</span></div>
+                      
                     </router-link>
 
                     <router-link :to="`/main/topic/${topic.id}`">
@@ -76,12 +78,12 @@
 
       <div class="friendscard">
         <h3>{{ isCurrentUser ? '我的关注' : '他的关注' }}</h3>
-        <el-row justify="space-evenly" class="showfollow" v-for="friend in displayUser.follows" :key="friend.id">
+        <el-row type="flex" justify="space-evenly" align="middle" class="showfollow" v-for="friend in displayUser.follows" :key="friend.id">
           <el-col :span="12">
             <router-link :to="`/profile/${friend.id}`">
               <el-avatar 
                 shape="square" 
-                :size="50" 
+                :size="60" 
                 :src="friend.avatar"
               ></el-avatar>
             </router-link>
@@ -118,7 +120,7 @@
     status: string;
     self_intro: string;
     email:string;
-    topics: { id: number; avatar: string; nickname: string; content: string; image: string | null; sectionName: string; createdAt: string }[];
+    topics: { id: number; avatar: string; nickname: string; content: string; image: string | null; sectionName: string; createdAt: string;thumbs:number|0}[];
     follows: { id: number; avatar: string; nickname: string ;isMutual:boolean}[];
     createdAt: string;
   }
@@ -240,7 +242,8 @@
           content: topic.content.length > 50 ? topic.content.substring(0, 50) + '...' : topic.content,
           image: topic.image,
           sectionName: topic.sectionName,
-          createdAt: topic.createdAt
+          createdAt: topic.createdAt,
+          thumbs:topic.thumbs
         }));
       }
   
@@ -276,6 +279,7 @@
   #uservo {
     display: flex;
     flex-direction: row;
+    min-height: 100vh;
     width: 100%;
     background-color: #f4f5f7;
   }
@@ -287,10 +291,10 @@
     margin-bottom: 20px;
     height: 30vh;
     width: 80%;
-    background-color: #ffffff; /* 修改header背景色为白色 */
+    background-color: #ffffff; 
     justify-content: space-around;
-    border-radius: 10px; /* 设置边框圆滑 */
-    border: 1px solid #ddd; /* 可选：增加边框颜色 */
+    border-radius: 10px;
+    border: 1px solid #ddd; 
   }
   
   .avatar {
@@ -308,7 +312,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: fixed; /* 固定位置 */
+    position: fixed; 
     right: 3%;
     top: 10%;
     border-radius: 10px; 
@@ -323,17 +327,17 @@
     padding: 20px;
     overflow-y: auto;
     height: 100vh;
-    background-color: #f4f5f7; /* 修改content部分背景色为白色 */
+    background-color: #f4f5f7; 
   }
   
   .showfollow {
-    background-color: #ffffff; /* 修改showfollow背景色为白色 */
+    background-color: #ffffff; 
     width: 90%;
     height: 15%;
     margin: 10px;
-    align-items: center;
-    border-radius: 10px; /* 设置边框圆滑 */
-    border: 1px solid #ddd; /* 可选：增加边框颜色 */
+
+    border-radius: 10px; 
+    border: 1px solid #ddd; 
   }
   
   .el-menu-vertical-demo {
@@ -427,7 +431,7 @@
   }
   
   .d-icon {
-    margin-left: 400px;
+    margin-left: 550px;
     width: 25px;
     height: 25px;
   }

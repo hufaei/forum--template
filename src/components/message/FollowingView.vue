@@ -9,14 +9,13 @@
       :closable="false"
     >
     </el-alert>
-
     <el-scrollbar class="scrollbar">
-      <el-list v-if="notifications.length > 0" class="notification-list">
-        <el-list-item v-for="(notification, index) in notifications" :key="index" class="list-item">
+      <ul v-if="notifications.length > 0" class="notification-list">
+        <li v-for="(notification, index) in notifications" :key="index" class="list-item">
           <span>{{ notification.content }}</span>
-          <span class="notification-time">{{  formatDate(notification.time)}}</span>
-        </el-list-item>
-      </el-list>
+          <span class="notification-time">{{ formatDate(notification.time) }}</span>
+        </li>
+      </ul>
       <p v-else>目前没有新通知。</p>
     </el-scrollbar>
   </div>
@@ -49,12 +48,8 @@ onMounted(() => {
     // 查询近三十条历史通知记录
     pubsub.history({
       channel: 'channel_notification_' + userStore.user.id, // 替换为用户的通知通道
-      limit: 30, // 查询最近30条历史消息
       onSuccess: function (response: any) {
-        console.log("收到历史通知消息: " + JSON.stringify(response));
         const historyMessages = response.content.messages;
-
-        // 将历史消息推入 notifications 数组
         historyMessages.forEach((msg: any) => {
           notifications.value.push({
             content: msg.content,

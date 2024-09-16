@@ -19,11 +19,11 @@ const goEasy = inject('goEasy') as any;
 const isConnected = ref(false);
 
 // 检查当前页面是否为登录或注册页面
-const isAuthPage = ref(route.name === 'login' || route.name === 'register');
+const isAuthPage = ref(route.name === 'login' || route.name === 'register' || route.name === 'forget');
 
 // 监听路由变化，实时更新 isAuthPage 状态
 watch(route, (newRoute) => {
-  isAuthPage.value = newRoute.name === 'login' || newRoute.name === 'register';
+  isAuthPage.value = newRoute.name === 'login' || newRoute.name === 'register' || route.name === 'forget';
 });
 
 // 连接到 GoEasy

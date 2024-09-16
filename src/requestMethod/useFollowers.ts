@@ -3,7 +3,7 @@
   import { ref } from 'vue';
   import { useRequest, type ResponseData} from '@miitvip/admin-pro';
   import { ElMessage } from 'element-plus';
-import { getRequestConfig } from '@/utils/RequestConfig';
+  import { getRequestConfig } from '@/utils/RequestConfig';
   
   const { $request } = useRequest();
   

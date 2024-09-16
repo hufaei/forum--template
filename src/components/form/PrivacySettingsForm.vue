@@ -12,7 +12,7 @@
 
     <div class="action-buttons">
       <button @click="confirmLogout" class="button logout-button">注销账号</button>
-      <router-link to="/reset-password" class="button forgot-password-link">
+      <router-link to="/forget" class="button forgot-password-link">
         忘记密码？
       </router-link>
     </div>

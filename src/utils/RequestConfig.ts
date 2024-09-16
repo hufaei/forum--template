@@ -25,7 +25,7 @@ export const getRequestConfig = (): RequestConfig => {
     retryDelay: 100,
     retryCount: 0,
     responseType: 'json',
-    withCredentials: false // 允许携带凭证---目前不明原因的报错因此解决但是我知道这允许cookies自动传入satoken
+    withCredentials: false // 若携带凭证--自動傳入satoken字段的cookie（可在後端設置如何讀取）
   };
 };
 export const ImageRConfig = (): RequestConfig => {

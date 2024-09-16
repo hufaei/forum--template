@@ -183,7 +183,100 @@ const register = async (data: RegisterData) => {
     return false;
   }
 };
+// 發送驗證碼方法
+const sendEmail = async (email: string) => {
+  try {
+    const response: ResponseData = await $request.post(
+      `http://localhost:8080/users/sendEmail/${email}`,
+      {},
+      rconfig
+    );
 
+    if (response.ret.code === 200 && response.data === true) {
+      ElMessage.success('驗證碼發送成功');
+      return true;
+    } else {
+      errorMessage.value = response.ret.message;
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    errorMessage.value = '發生失败，请稍後重试。';
+    ElMessage.error('注册失败，请重试。');
+    return false;
+  }
+};
+// 驗證方法
+const verifyCode = async (Email: any,Code:number) => {
+  try {
+    const response: ResponseData = await $request.post(
+      `http://localhost:8080/users/verifyCode`,
+      {
+        email:Email,
+        code:Code
+      },
+      rconfig
+    );
+
+    if (response.ret.code === 200 && response.data === true) {
+      return true;
+    } else {
+      errorMessage.value = response.ret.message;
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    errorMessage.value = '驗證碼錯誤';
+    ElMessage.error('驗證碼錯誤，请重试。');
+    return false;
+  }
+};
+// 驗證郵箱方法
+const verifyEmail = async (Email: string) => {
+  try {
+    const response: ResponseData = await $request.post(
+      `http://localhost:8080/users/verifyEmail/${Email}`,
+      { },
+      rconfig
+    );
+
+    if (response.ret.code === 200 && response.data === true) {
+      return true;
+    } else {
+      errorMessage.value = response.ret.message;
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    errorMessage.value = '用戶不存在';
+    ElMessage.error('用戶不存在');
+    return false;
+  }
+};
+// 修改密碼
+const changePwd = async (username:string,password:string) => {
+  try {
+    const response: ResponseData = await $request.post(
+      `http://localhost:8080/users/changePassword`,
+      {
+        email:username,
+        password:password},
+      rconfig
+    );
+
+    if (response.ret.code === 200 && response.data === true) {
+      return true;
+    } else {
+      errorMessage.value = response.ret.message;
+      ElMessage.error(response.ret.message);
+      return false;
+    }
+  } catch (error) {
+    errorMessage.value = '修改失敗，請提交問題反饋';
+    ElMessage.error('修改失敗，請提交問題反饋');
+    return false;
+  }
+};
 const uploadAvatar = async (file: File) => {
   try {
     // 创建 FormData 对象
@@ -210,4 +303,4 @@ const uploadAvatar = async (file: File) => {
     return false;
   }
 };
-export { getUserVo, updateUser, getTopUsers,loginUser, destroy,logoutUser,register,uploadAvatar ,errorMessage };
+export { getUserVo,changePwd, verifyEmail,verifyCode,sendEmail,updateUser, getTopUsers,loginUser, destroy,logoutUser,register,uploadAvatar ,errorMessage };

@@ -5,14 +5,14 @@ const SectionView = () => import('@/views/SectionView.vue')
 const MainView = () => import('@/views/MainView.vue')
 const TopicView = () => import('@/views/TopicView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
-const EditProfileView = () => import('@/views/testView.vue') 
+const EditProfileView = () => import('@/views/EditProfileView.vue') 
 const RegisterView = () => import('@/views/RegisterView.vue')
 const LoginView = () => import('@/views/LoginView.vue')
 const HomeView = () => import('@/views/HomeView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
-const PublishView = () => import('@/views/testView1.vue')
+const PublishView = () => import('@/views/PublishView.vue')
 const MessageView = () => import('@/views/MessageView.vue')
-
+const ForgotView = () => import('@/views/ForgotView.vue')
 const ChatRoom = () => import('@/components/message/ChatView.vue')
 const ChatList = () => import('@/components/message/ChatList.vue')
 const FollowingView = () => import('@/components/message/FollowingView.vue')
@@ -54,6 +54,11 @@ const routes = [
       name: "login",
       component: LoginView
   },
+  {
+    path: "/forget",
+    name: "forget",
+    component: ForgotView
+},
   {
       path: "/profile/:userId",
       name: "profile",

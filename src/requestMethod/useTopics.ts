@@ -1,7 +1,6 @@
 import { getRequestConfig } from '@/utils/RequestConfig';
 import { useRequest, type ResponseData} from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
-import type { Ref } from 'vue';
 
 const { $request } = useRequest();
 const rconfig = getRequestConfig()

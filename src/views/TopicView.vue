@@ -24,8 +24,8 @@
 
     </div>
     <div class="topic-footer">
-      <span>浏览数: {{ topic?.viewCount }}</span>
-      <span>{{ topic?.createdAt }}</span>
+      <div></div>
+      <span>{{formatDate( topic?.createdAt) }}</span>
     </div>
     <el-divider></el-divider>
 
@@ -39,6 +39,8 @@
     >
       <el-card v-for="comment in comments" :key="comment.id" class="comment-card">
         <div class="comment-content">{{ comment.nickName }}: {{ comment.content }}</div>
+        <div style="text-align: right;color:gray">{{ formatReplyTime(comment?.createdAt) }}
+        </div>
         <div class="comment-footer">
           <el-divider />
           <span v-if="replyCounts[comment.id] > 0" @click="toggleReplies(comment.id)" class="replies-toggle">
@@ -78,8 +80,16 @@
 
     <!-- 操作按钮 -->
     <div class="actions">
-      <img :src="likeIcon" @click="toggleLike" class="icon" alt="点赞">
-      <img src="@/assets/comment.png" class="icon" alt="评论">
+      
+      <div style="display:flex;gap:10px"><img :src="likeIcon" @click="toggleLike" class="icon" alt="点赞">
+        <p>{{ topic?.thumbs }}</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <img src="@/assets/comment.png" class="icon" alt="评论">
+        <p>{{ comments?.length }}</p>
+      </div>
+      
+      
       <img src="@/assets/share.png" class="icon" alt="分享">
     </div>
   </div>
@@ -90,13 +100,18 @@ import { ref, reactive, onMounted, computed} from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchComments, submitCommentApi, type Comment } from '@/requestMethod/useComment';
 import { fetchReplies, addReply, type Replies } from '@/requestMethod/useReplies';
-import { fetchTopic ,thumb} from '@/requestMethod/useTopics'; // 获取话题详情
-import { getUserVo } from '@/requestMethod/useUser'; // 获取用户信息
+import { fetchTopic ,thumb} from '@/requestMethod/useTopics'; 
+import { getUserVo } from '@/requestMethod/useUser'; 
 import { ElMessage } from 'element-plus';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/userStore';
 import router from '@/router';
-
+import dayjs from 'dayjs'; // 用于日期格式化
+import 'dayjs/locale/zh-cn'; // 支持中文格式
+// 格式化时间为 "YYYY-MM-DD HH:mm" 格式
+const formatDate = (timestamp: number) => {
+  return dayjs(timestamp).format('YYYY-MM-DD HH:mm');
+};
 const route = useRoute();
 const topicId = route.params.topicId as string; // 从路由中获取 topicId
 const likeIcon = ref<string>("/src/assets/point-re.png");
@@ -110,13 +125,13 @@ let comments = ref<Comment[]>([]);
 let newComment = ref<string>('');
 let newReplyContent = ref<string>(''); // 用于回复的内容
 let loading = ref<boolean>(false); // 保留loading用于加载评论部分
-let currentPage = ref<number>(1); // 当前页数，初始化为1m
+let currentPage = ref<number>(1); 
 // 回复相关
 let repliesMap = reactive<Record<number, Replies[]>>({});
 let showRepliesMap = reactive<Record<number, boolean>>({});
 let replyCounts = reactive<Record<number, number>>({});
 let totalReplies = ref<number>(0);
-let replyTo = ref<number | null>(null); // 当前要回复的评论 ID
+let replyTo = ref<number | null>(null); 
 let replyPlaceholder = computed(() => 
   replyTo.value ? `回复 ${comments.value.find(c => c.id === replyTo.value)?.nickName}` : '输入回复...'
 );
@@ -268,6 +283,10 @@ const toggleLike = () => {
       ? "/src/assets/point.png"
       : "/src/assets/point-re.png";
   thumb(Number(topicId));
+  // 更新点赞数
+  topic.value.thumbs = likeIcon.value === "/src/assets/point.png"
+        ? topic.value.thumbs + 1
+        : topic.value.thumbs - 1;
    };
 
 onMounted(async () => {
