@@ -29,6 +29,11 @@ This template should help get you started developing with Vue 3 in Vite.
 ***下载包后先修改main.ts文件下goeasy的appkey（若无自行申请）--[GoEasy](https://console.goeasy.io/#/application)***<br>
 ***<h6>写的时候为了测试用法，一部分的通知发送配合监听消息队列写道后端去了，故修改后端代码对应的controller层的MqListener文件</h6>***<br>
 ***<h6>此文件只针对前端的部署，后端的部署使用详见其README.md文件</h6>***
+## 注意事项
+在私聊页面（MessageView）要发送语音、视频和图片，请先**配置第三方存储服务**：
+* [阿里云OSS对象存储集成指南](https://docs.goeasy.io/2.x/im/message/media/alioss)
+* [腾讯云COS对象存储集成指南](https://docs.goeasy.io/2.x/im/message/media/tencentcos)
+---
 ## 预览图
 ### 用户中心：
 ![用户中心](docx/Preview/用户中心.png)
