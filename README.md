@@ -78,3 +78,9 @@ npm run build
 ```sh
 npm run lint
 ```
+## 致谢
+
+本项目参考并使用了以下开源仓库的组件：
+
+- [miitvip-vue-admin-manager](https://github.com/lirongtong/miitvip-vue-admin-manager "Vue 3 管理后台模板") 。
+
