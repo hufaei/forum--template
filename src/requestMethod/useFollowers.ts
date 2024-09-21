@@ -4,6 +4,7 @@
   import { useRequest, type ResponseData} from '@miitvip/admin-pro';
   import { ElMessage } from 'element-plus';
   import { getRequestConfig } from '@/utils/RequestConfig';
+import config from '@/utils/Config';
   
   const { $request } = useRequest();
   
@@ -14,7 +15,7 @@
   
   const getFollows = async (userId: number) => {
     try {
-      const response: ResponseData = await $request.get(`http://localhost:8080/follows/get/vo/${userId}`,{}, rconfig);
+      const response: ResponseData = await $request.get(`${config.baseURL}/follows/get/vo/${userId}`,{}, rconfig);
   
       if (response.ret.code === 200) {
         followsList.value = response.data as Follower[];
@@ -31,7 +32,7 @@
   const checkMutualFollow = async (followerId: number, followeeId: number): Promise<boolean> => {
     try {
       const response: ResponseData = await $request.post(
-        `http://localhost:8080/follows/checkMutualFollow`,
+        `${config.baseURL}/follows/checkMutualFollow`,
         {
           "follower_id":followerId,
           "followee_id":followeeId
@@ -47,7 +48,7 @@
   const toggle = async (followerId: number, followeeId: number): Promise<boolean> => {
     try {
       const response: ResponseData = await $request.post(
-        `http://localhost:8080/follows/toggle`,
+        `${config.baseURL}/follows/toggle`,
         {
           "followerId":followerId,
           "followeeId":followeeId

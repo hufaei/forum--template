@@ -67,8 +67,14 @@
       </div>
       
       <el-card class="otherview" shadow="hover">
-        <p>这里是右侧固定的内容。</p>
+        调色板：<mi-palette />
+        <mi-quote v-if="selectedSection">
+          「
+          <span class="important">{{ selectedSection.name}}</span>
+          」{{ selectedSection.description }}。
+      </mi-quote>
       </el-card>
+
     </div>
     <router-view></router-view>
   </div>
@@ -82,6 +88,7 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 
 const sections = ref<Section[]>([]);
+const selectedSection = ref<Section | null>(null);
 const topics = ref<Topic[]>([]);
 const userMap = ref<Record<number, { avatar: string; nickname: string }>>({});
 const activeTab = ref(1);
@@ -90,12 +97,14 @@ const hasMore = ref(true); // 控制是否还有更多数据
 let offset = 0;
 const router = useRouter();
 
+
 const loadSections = async () => {
   try {
     const data = await fetchSections();
     sections.value = data;
     if (sections.value.length > 0) {
       activeTab.value = sections.value[0].id;
+      selectedSection.value = sections.value[0];
       loadTopics(sections.value[0].id);
     }
   } catch (error) {
@@ -151,6 +160,7 @@ const handleTabClick = (section: Section) => {
   offset = 0;
   hasMore.value = true; // 重置 hasMore 标志位
   loadTopics(section.id);
+  selectedSection.value = section; 
 };
 
 const topicImages = (imageStr: string | null): string[] => {
@@ -225,9 +235,10 @@ onMounted(() => {
   min-height: 80%;
   padding: 20px;
   box-sizing: border-box;
-  border-radius: 5%;
+  border: #8dffff solid 1px;
+  border-radius: 2%;
   overflow-y: auto;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.6);
 }
 
 /* 话题卡片 */

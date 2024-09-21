@@ -19,6 +19,11 @@ export const useUserStore = defineStore('user', {
       this.user.avatar = newAvatarUrl;
       localStorage.setItem('user', JSON.stringify(this.user));
     },
+    updateUser(data: Partial<any>) {
+      // 合并当前用户数据和新数据
+      this.user = { ...this.user, ...data };
+      localStorage.setItem('user', JSON.stringify(this.user)); // 更新 localStorage 中的用户信息
+    },
     clear() {
       this.user = {};
       localStorage.removeItem('user');

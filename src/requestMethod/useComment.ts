@@ -1,3 +1,4 @@
+import config from '@/utils/Config';
 import { getRequestConfig } from '@/utils/RequestConfig';
 import { useRequest, type ResponseData} from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
@@ -7,7 +8,7 @@ const rconfig = getRequestConfig()
 
 const fetchComments = async (topicId: number,current: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/comments/get/commentsVo/${topicId}/${current}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/comments/get/commentsVo/${topicId}/${current}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -21,7 +22,7 @@ const fetchComments = async (topicId: number,current: number) => {
 };
 const fetchViewCount = async () => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/comments/getTopViewCounts`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/comments/getTopViewCounts`, {}, rconfig);
     if (response.ret.code === 200) {
       console.log(response.data)
       return response.data;
@@ -36,7 +37,7 @@ const fetchViewCount = async () => {
 };
 const submitCommentApi = async (comment: { content: string; topicId: number; userId: number }) => {
   try {
-    const response: ResponseData = await $request.post(`http://localhost:8080/comments/add`, comment, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/comments/add`, comment, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {

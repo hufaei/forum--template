@@ -14,7 +14,7 @@
         :key="msg.timestamp"
         :class="['message', Number(msg.senderId) === currentUser.id ? 'sent' : 'received']"
       >
-        <el-avatar :src="msg.senderId === currentUser.id ? currentUser.avatar : otherUser?.avatar" class="message-avatar" />
+        <el-avatar :src="Number(msg.senderId) === currentUser.id ? currentUser.avatar : otherUser?.avatar" class="message-avatar" />
         <div class="message-content-wrapper">
           <div class="message-content">
             {{ msg.payload.text }}

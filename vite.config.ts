@@ -21,6 +21,6 @@ export default defineConfig({
   },
   server: {
     open: true, // 启动时自动打开浏览器
-    port: 5173 // 设置开发服务器端口
-  }
+    port: 5173, // 设置开发服务器端口
+},
 })

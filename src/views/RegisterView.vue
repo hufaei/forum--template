@@ -1,6 +1,6 @@
 <template>
   <div>
-    <mi-register :action="handleSubmit" :title="title" :captcha="false" :background="bg1" :username-tip="false" />
+    <mi-register :action="handleSubmit" :title="title" :background="bg1" :username-tip="false" />
     <!-- 显示错误信息 -->
     <el-alert v-if="errorMessage" :title="errorMessage" type="error" show-icon />
   </div>

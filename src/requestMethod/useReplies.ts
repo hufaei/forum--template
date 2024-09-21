@@ -1,3 +1,4 @@
+import config from '@/utils/Config';
 import { getRequestConfig } from '@/utils/RequestConfig';
 import { useRequest, type ResponseData } from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
@@ -8,7 +9,7 @@ const rconfig = getRequestConfig();
 // 获取回复列表
 const fetchReplies = async (commentId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/replies/get/repliesVo/${commentId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/replies/get/repliesVo/${commentId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -24,7 +25,7 @@ const fetchReplies = async (commentId: number) => {
 // 添加回复
 const addReply = async (data: { commentId: number; content: string; userId: number }) => {
   try {
-    const response: ResponseData = await $request.post('http://localhost:8080/replies/add', data, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/replies/add`, data, rconfig);
     if (response.ret.code === 200) {
       return response.data; // 新回复的 ID
     } else {

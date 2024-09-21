@@ -18,10 +18,11 @@ interface UsersUpdateRequest {
 }
 
 import { useUserStore } from '@/stores/userStore';
+import config from '@/utils/Config';
 const userStore = useUserStore();
 const loginUser = async (usernameOrEmail: string, password: string) => {
   try {
-    const response: ResponseData = await $request.post('http://localhost:8080/users/login', {
+    const response: ResponseData = await $request.post(`${config.baseURL}/users/login`, {
       "password": password,
       "usernameOrEmail": usernameOrEmail
     }, rconfig);
@@ -51,8 +52,6 @@ const loginUser = async (usernameOrEmail: string, password: string) => {
 const updateUser = async (data: Partial<UsersUpdateRequest>) => {
   try {
     const user = userStore.user;
-    console.log(user)
-    console.log(userStore.token)
     const updatedData: UsersUpdateRequest = {
       id: user.id,
       nickname: data.nickname || user.nickname,
@@ -60,10 +59,10 @@ const updateUser = async (data: Partial<UsersUpdateRequest>) => {
       self_intro: data.self_intro || user.self_intro
     };
 
-    const response: ResponseData = await $request.post('http://localhost:8080/users/update', updatedData, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/users/update`, updatedData, rconfig);
 
     if (response.ret.code === 200 && response.data === true) {
-      userStore.setUser(updatedData);
+      userStore.updateUser(updatedData);
       ElMessage.success('用户信息更新成功');
     } else {
       errorMessage.value = response.ret.message;
@@ -77,7 +76,7 @@ const updateUser = async (data: Partial<UsersUpdateRequest>) => {
 };
 const getUserVo = async (userId: number) => {
   try{
-    const response: ResponseData = await $request.get(`http://localhost:8080/users/get/vo/${userId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/users/get/vo/${userId}`, {}, rconfig);
     if(response.ret.code == 200){
       return response.data;
       // ElMessage.success('用户信息更新成功');
@@ -91,7 +90,7 @@ const getUserVo = async (userId: number) => {
 };
 const getTopUsers = async () => {
   try{
-    const response: ResponseData = await $request.get(`http://localhost:8080/users/topUsers`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/users/topUsers`, {}, rconfig);
     if(response.ret.code == 200){
       return response.data;
     }
@@ -106,7 +105,7 @@ const getTopUsers = async () => {
 // 登出方法
 const logoutUser = async () => {
   try {
-    const response: ResponseData = await $request.post('http://localhost:8080/users/logout', {}, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/users/logout`, {}, rconfig);
 
     if (response.ret.code === 200 && response.data === true) {
       userStore.clear(); // 清除本地的用户信息和 token
@@ -127,7 +126,7 @@ const logoutUser = async () => {
 // 注销方法
 const destroy = async () => {
   try {
-    const response: ResponseData = await $request.post('http://localhost:8080/users/self/delete', {}, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/users/self/delete`, {}, rconfig);
 
     if (response.ret.code === 200 && response.data === true) {
       userStore.clear(); // 清除本地的用户信息和 token
@@ -157,7 +156,7 @@ interface RegisterData {
 const register = async (data: RegisterData) => {
   try {
     const response: ResponseData = await $request.post(
-      'http://localhost:8080/users/add',
+      `${config.baseURL}/users/add`,
       {
         nickname: data.username,
         password: data.password,
@@ -187,7 +186,7 @@ const register = async (data: RegisterData) => {
 const sendEmail = async (email: string) => {
   try {
     const response: ResponseData = await $request.post(
-      `http://localhost:8080/users/sendEmail/${email}`,
+      `${config.baseURL}/users/sendEmail/${email}`,
       {},
       rconfig
     );
@@ -210,7 +209,7 @@ const sendEmail = async (email: string) => {
 const verifyCode = async (Email: any,Code:number) => {
   try {
     const response: ResponseData = await $request.post(
-      `http://localhost:8080/users/verifyCode`,
+      `http://47.108.166.11:8081/users/verifyCode`,
       {
         email:Email,
         code:Code
@@ -235,7 +234,7 @@ const verifyCode = async (Email: any,Code:number) => {
 const verifyEmail = async (Email: string) => {
   try {
     const response: ResponseData = await $request.post(
-      `http://localhost:8080/users/verifyEmail/${Email}`,
+      `http://47.108.166.11:8081/users/verifyEmail/${Email}`,
       { },
       rconfig
     );
@@ -257,7 +256,7 @@ const verifyEmail = async (Email: string) => {
 const changePwd = async (username:string,password:string) => {
   try {
     const response: ResponseData = await $request.post(
-      `http://localhost:8080/users/changePassword`,
+      `http://47.108.166.11:8081/users/changePassword`,
       {
         email:username,
         password:password},
@@ -285,7 +284,7 @@ const uploadAvatar = async (file: File) => {
 
     // 发起 POST 请求
     const response: ResponseData = await $request.post(
-      'http://localhost:8080/users/updateAvatar',
+      `${config.baseURL}/users/updateAvatar`,
       formData,
       iconfig
     );

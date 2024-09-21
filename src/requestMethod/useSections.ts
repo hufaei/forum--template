@@ -1,4 +1,5 @@
 
+import config from '@/utils/Config';
 import { getRequestConfig } from '@/utils/RequestConfig';
 import { useRequest, type ResponseData} from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
@@ -8,7 +9,7 @@ const rconfig=getRequestConfig()
 
 const fetchSections = async () => {
   try {
-    const response: ResponseData = await $request.get('http://localhost:8080/sections/all',{},rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/sections/all`,{},rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {

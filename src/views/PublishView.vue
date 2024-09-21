@@ -29,7 +29,7 @@
           <el-upload
             ref="uploadRef"
             class="upload"
-            action="http://localhost:8080/topics/uploadImages"
+            action="http://47.108.166.11:8081/topics/uploadImages"
             list-type="picture-card"
             with-credentials
             :on-success="handleUploadSuccess"
@@ -55,7 +55,7 @@
         <div v-if="draft.content" class="draft-container">
           <el-card style="width: 100%;">
             <template v-slot:header>
-              <mi-link path="http://localhost:5173/main/section" target="_self">
+              <mi-link path="http://47.108.166.11/main/section" target="_self">
                 {{ getSectionName(draft.sectionId) }}
               </mi-link>
             </template>

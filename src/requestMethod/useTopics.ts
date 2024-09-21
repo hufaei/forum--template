@@ -1,3 +1,4 @@
+import config from '@/utils/Config';
 import { getRequestConfig } from '@/utils/RequestConfig';
 import { useRequest, type ResponseData} from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
@@ -7,7 +8,7 @@ const rconfig = getRequestConfig()
 
 const fetchTopics = async (sectionId: number,current:number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/topicsVo/${sectionId}/${current}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/topics/get/topicsVo/${sectionId}/${current}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -21,7 +22,7 @@ const fetchTopics = async (sectionId: number,current:number) => {
 };
 const fetchTopic = async (topicId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/topicVo/${topicId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/topics/get/topicVo/${topicId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -36,7 +37,7 @@ const fetchTopic = async (topicId: number) => {
 
 const fetchTopicsByUserId = async (userId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/get/topicsVoByUserId/${userId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/topics/get/topicsVoByUserId/${userId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -50,7 +51,7 @@ const fetchTopicsByUserId = async (userId: number) => {
 };
 const addTopic = async (data: { content: string; image:string[] ; sectionId: number; userId: number }) => {
   try {
-    const response: ResponseData = await $request.post(`http://localhost:8080/topics/add`, data, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/topics/add`, data, rconfig);
     if (response.ret.code === 200) {
       return response.data;
     } else {
@@ -66,7 +67,7 @@ const addTopic = async (data: { content: string; image:string[] ; sectionId: num
 // 添加删除话题的方法
 const deleteTopic = async (topicId: number) => {
   try {
-    const response: ResponseData = await $request.post(`http://localhost:8080/topics/delete`, 
+    const response: ResponseData = await $request.post(`${config.baseURL}/topics/delete`, 
     { "id":topicId }
     , rconfig);
     if (response.ret.code === 200) {
@@ -84,7 +85,7 @@ const deleteTopic = async (topicId: number) => {
 // 添加存储草稿的方法
 const saveDraft = async (data: { content: string; imageUrls: string[]; sectionId: number }) => {
   try {
-    const response: ResponseData = await $request.post(`http://localhost:8080/drafts/save`, data, rconfig);
+    const response: ResponseData = await $request.post(`${config.baseURL}/drafts/save`, data, rconfig);
     if (response.ret.code === 200) {
       ElMessage.success('草稿保存成功');
       return response.data;
@@ -101,7 +102,7 @@ const saveDraft = async (data: { content: string; imageUrls: string[]; sectionId
 // 添加获取草稿的方法
 const getDraft = async () => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/drafts/get`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/drafts/get`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;  // 返回草稿内容，包含 content, imageUrls, sectionId
     } else {
@@ -116,7 +117,7 @@ const getDraft = async () => {
 // 添加获取草稿的方法
 const thumb = async (topicId: number) => {
   try {
-    const response: ResponseData = await $request.get(`http://localhost:8080/topics/thumb/${topicId}`, {}, rconfig);
+    const response: ResponseData = await $request.get(`${config.baseURL}/topics/thumb/${topicId}`, {}, rconfig);
     if (response.ret.code === 200) {
       return response.data;  // 返回草稿内容，包含 content, imageUrls, sectionId
     } else {

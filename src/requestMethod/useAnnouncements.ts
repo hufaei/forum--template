@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { useRequest, type ResponseData } from '@miitvip/admin-pro';
 import { ElMessage } from 'element-plus';
 import { getRequestConfig } from '@/utils/RequestConfig';
+import config from '@/utils/Config';
 
 const { $request } = useRequest();
 
@@ -15,7 +16,7 @@ const rconfig = getRequestConfig()
 const fetchAnnouncements = async () => {
   try {
     const response: ResponseData = await $request.post(
-      'http://localhost:8080/announcements/list/page',
+      `${config.baseURL}/announcements/list/page`,
       {
         current: null,
         pageSize: null,

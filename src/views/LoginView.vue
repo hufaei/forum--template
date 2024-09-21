@@ -19,7 +19,7 @@
     const success = await loginUser(data.username, data.password);
 
     if (success) {
-    router.push('/main'); 
+    router.push('/'); 
   }
 }
 
